@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.trrycaar.friends.presentation.screen.home.HomeScreen
 
 @Composable
 fun FriendsNavGraph(
@@ -16,7 +17,7 @@ fun FriendsNavGraph(
         startDestination = FriendsRoute.HomeScreenRoute::class,
         modifier = modifier
     ) {
-        composable<FriendsRoute.HomeScreenRoute> { }
+        composable<FriendsRoute.HomeScreenRoute> { HomeScreen(navController) }
         composable<FriendsRoute.FavoriteScreenRoute> { }
         composable<FriendsRoute.PostDetailsScreenRoute> { }
     }
