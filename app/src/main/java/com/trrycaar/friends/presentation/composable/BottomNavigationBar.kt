@@ -9,6 +9,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.trrycaar.friends.presentation.navigation.FriendsRoute
 
 
 @Composable
@@ -23,7 +24,13 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 selected = currentDestination == tab.route.value,
                 onClick = {
-                    navController.navigate(tab.route.value) {
+                    navController.navigate(
+                        when (tab.route.value) {
+                            "home" -> FriendsRoute.HomeScreenRoute
+                            "favorite" -> FriendsRoute.FavoriteScreenRoute
+                            else -> FriendsRoute.HomeScreenRoute
+                        }
+                    ) {
                         launchSingleTop = true
                         restoreState = true
                         popUpTo(navController.graph.startDestinationId) {
