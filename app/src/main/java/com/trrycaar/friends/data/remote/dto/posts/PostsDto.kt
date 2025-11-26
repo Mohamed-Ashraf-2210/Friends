@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PostsDto(
-    @SerialName("posts")
+    @SerialName("data")
     val posts: List<PostDto>
 )
