@@ -12,6 +12,7 @@ import com.trrycaar.friends.data.util.network.safeApiCall
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.domain.util.Result
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -20,21 +21,20 @@ class PostRepositoryImpl(
     private val client: HttpClient,
     private val postLocalDataSource: PostLocalDataSource
 ) : PostRepository {
-    override suspend fun getPosts(): List<Post> {
+    override suspend fun getPosts(): Result<List<Post>> {
         return try {
             val response: PostsDto = safeApiCall {
                 client.get(BASE_URL + POSTS)
             }
             postLocalDataSource.clearPosts()
             postLocalDataSource.savePosts(response.posts.map { it.toEntity() })
-            response.posts.map { it.toDomain() }
+            Result.Success(response.posts.map { it.toDomain() })
         } catch (e: Exception) {
             val cached = postLocalDataSource.getPosts()
-
             if (cached.isNotEmpty()) {
-                cached.map { it.toDomain() }
+                Result.Error("No internet, Display cached data", cached.map { it.toDomain() })
             } else {
-                throw e
+                Result.Error(e.message ?: "Unknown error", null)
             }
         }
     }
