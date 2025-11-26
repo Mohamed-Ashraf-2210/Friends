@@ -8,8 +8,6 @@ import kotlinx.serialization.Serializable
 data class CommentDto(
     @SerialName("body")
     val body: String,
-    @SerialName("createdAt")
-    val createdAt: String,
     @SerialName("email")
     val email: String,
     @SerialName("id")
@@ -17,7 +15,5 @@ data class CommentDto(
     @SerialName("name")
     val name: String,
     @SerialName("postId")
-    val postId: Int,
-    @SerialName("updatedAt")
-    val updatedAt: String
+    val postId: Int
 )

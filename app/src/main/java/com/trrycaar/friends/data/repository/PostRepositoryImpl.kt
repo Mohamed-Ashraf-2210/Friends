@@ -38,13 +38,6 @@ class PostRepositoryImpl(
         }
     }
 
-    override suspend fun getCommentsPost(postId: Int): List<Comment> {
-        val response: List<CommentDto> = safeApiCall {
-            client.get(BASE_URL + COMMENTS)
-        }
-        return response.filter { it.postId == postId }.map { it.toDomain() }
-    }
-
     override suspend fun addPostToFavorites(postId: String) {
         TODO("Not yet implemented")
     }
