@@ -44,6 +44,6 @@ class HomeViewModel(
     }
 
     fun onPostClicked(postId: String) {
-
+        emitEffect(HomeEffects.NavigateToPostDetails(postId))
     }
 }

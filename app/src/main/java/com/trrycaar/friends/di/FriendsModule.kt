@@ -3,11 +3,14 @@ package com.trrycaar.friends.di
 import androidx.room.Room
 import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
+import com.trrycaar.friends.data.repository.CommentRepositoryImpl
 import com.trrycaar.friends.data.repository.PostRepositoryImpl
 import com.trrycaar.friends.data.util.constants.Constants.DATABASE_NAME
 import com.trrycaar.friends.data.util.network.buildApiClient
+import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeViewModel
+import com.trrycaar.friends.presentation.screen.postDetails.viewModel.PostDetailsViewModel
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +30,9 @@ val friendsModule = module {
     single { PostLocalDataSource(get()) }
 
     single<PostRepository> { PostRepositoryImpl(get(), get()) }
+    single<CommentRepository> { CommentRepositoryImpl(get()) }
 
     single<CoroutineDispatcher> { Dispatchers.IO }
     viewModelOf(::HomeViewModel)
+    viewModelOf(::PostDetailsViewModel)
 }

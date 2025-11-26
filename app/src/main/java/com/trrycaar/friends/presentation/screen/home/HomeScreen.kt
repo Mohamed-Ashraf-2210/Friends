@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.trrycaar.friends.presentation.navigation.FriendsRoute
 import com.trrycaar.friends.presentation.screen.home.composable.PostItem
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeEffects
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeUiState
@@ -31,7 +32,10 @@ fun HomeScreen(
                 navController.popBackStack()
             }
 
-            is HomeEffects.NavigateToPostDetails -> {}
+            is HomeEffects.NavigateToPostDetails -> {
+                navController.navigate(FriendsRoute.PostDetailsScreenRoute(postId = it.postId))
+            }
+
             is HomeEffects.ShowMessage -> {
                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
             }
@@ -41,7 +45,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeContent(state: HomeUiState, viewModel: HomeViewModel) {
+private fun HomeContent(state: HomeUiState, viewModel: HomeViewModel) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp)
