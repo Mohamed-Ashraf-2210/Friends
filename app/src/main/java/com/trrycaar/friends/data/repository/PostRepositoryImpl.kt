@@ -3,7 +3,7 @@ package com.trrycaar.friends.data.repository
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.mapper.toEntity
-import com.trrycaar.friends.data.remote.dto.CommentDto
+import com.trrycaar.friends.data.remote.dto.comments.CommentDto
 import com.trrycaar.friends.data.remote.dto.posts.PostsDto
 import com.trrycaar.friends.data.util.constants.EndPoints.BASE_URL
 import com.trrycaar.friends.data.util.constants.EndPoints.COMMENTS
@@ -15,7 +15,6 @@ import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.domain.util.Result
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 
 class PostRepositoryImpl(
     private val client: HttpClient,
@@ -39,13 +38,11 @@ class PostRepositoryImpl(
         }
     }
 
-    override suspend fun getCommentsPost(postId: String): List<Comment> {
+    override suspend fun getCommentsPost(postId: Int): List<Comment> {
         val response: List<CommentDto> = safeApiCall {
-            client.get(BASE_URL + COMMENTS) {
-                parameter("postId", postId.toInt())
-            }
+            client.get(BASE_URL + COMMENTS)
         }
-        return response.map { it.toDomain() }
+        return response.filter { it.postId == postId }.map { it.toDomain() }
     }
 
     override suspend fun addPostToFavorites(postId: String) {

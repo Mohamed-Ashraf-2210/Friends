@@ -7,7 +7,7 @@ import com.trrycaar.friends.domain.util.Result
 interface PostRepository {
     suspend fun getPosts(): Result<List<Post>>
 
-    suspend fun getCommentsPost(postId: String): List<Comment>
+    suspend fun getCommentsPost(postId: Int): List<Comment>
 
     suspend fun addPostToFavorites(postId: String)
 
