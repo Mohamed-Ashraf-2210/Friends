@@ -1,10 +1,10 @@
 package com.trrycaar.friends.data.repository
 
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
-import com.trrycaar.friends.data.remote.dto.CommentDto
-import com.trrycaar.friends.data.remote.dto.PostDto
 import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.mapper.toEntity
+import com.trrycaar.friends.data.remote.dto.CommentDto
+import com.trrycaar.friends.data.remote.dto.posts.PostsDto
 import com.trrycaar.friends.data.util.constants.EndPoints.BASE_URL
 import com.trrycaar.friends.data.util.constants.EndPoints.COMMENTS
 import com.trrycaar.friends.data.util.constants.EndPoints.POSTS
@@ -22,13 +22,20 @@ class PostRepositoryImpl(
 ) : PostRepository {
     override suspend fun getPosts(): List<Post> {
         return try {
-            val response: List<PostDto> = safeApiCall {
+            val response: PostsDto = safeApiCall {
                 client.get(BASE_URL + POSTS)
             }
-            postLocalDataSource.savePosts(response.map { it.toEntity() })
-            response.map { it.toDomain() }
+            postLocalDataSource.clearPosts()
+            postLocalDataSource.savePosts(response.posts.map { it.toEntity() })
+            response.posts.map { it.toDomain() }
         } catch (e: Exception) {
-            postLocalDataSource.getPosts().map { it.toDomain() }
+            val cached = postLocalDataSource.getPosts()
+
+            if (cached.isNotEmpty()) {
+                cached.map { it.toDomain() }
+            } else {
+                throw e
+            }
         }
     }
 
