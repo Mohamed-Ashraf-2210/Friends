@@ -13,6 +13,7 @@ serializeJson = "1.9.0"
 ktor = "3.3.2"
 koin = "4.1.1"
 navigation = "2.9.6"
+room = "2.8.4"
 
 [libraries]
 kotlinx-coroutines-android = {module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
@@ -33,6 +34,9 @@ koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = 
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 
+
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -76,4 +80,9 @@ koin = [
     "koin-android",
     "koin-core",
     "koin-androidx-compose"
+]
+
+room = [
+    "androidx-room-ktx",
+    "androidx-room-runtime"
 ]

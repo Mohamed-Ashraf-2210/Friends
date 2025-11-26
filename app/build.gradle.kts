@@ -63,4 +63,5 @@ dependencies {
     implementation(libs.bundles.koin)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.navigation.compose)
+    implementation(libs.bundles.room)
 }
