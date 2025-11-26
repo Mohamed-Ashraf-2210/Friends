@@ -5,30 +5,46 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
 
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavHostController
+    navController: NavHostController,
+    bottomTabs: List<BottomTab>,
+    modifier: Modifier = Modifier
 ) {
-    val currentDestination = navController
-        .currentBackStackEntryAsState().value?.destination?.route
+    var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    NavigationBar {
-        bottomTabs.forEach { tab ->
+    NavigationBar(modifier) {
+        bottomTabs.forEachIndexed { index, tab ->
             NavigationBarItem(
-                selected = currentDestination == tab.route.value,
+                selected = selectedItemIndex == index,
                 onClick = {
                     navController.navigate(
-                        when (tab.route.value) {
-                            "home" -> FriendsRoute.HomeScreenRoute
-                            "favorite" -> FriendsRoute.FavoriteScreenRoute
-                            else -> FriendsRoute.HomeScreenRoute
+                        when (index) {
+                            0 -> {
+                                selectedItemIndex = 0
+                                FriendsRoute.HomeScreenRoute
+                            }
+
+                            1 -> {
+                                selectedItemIndex = 1
+                                FriendsRoute.FavoriteScreenRoute
+                            }
+
+                            else -> {
+                                selectedItemIndex = 0
+                                FriendsRoute.HomeScreenRoute
+                            }
                         }
                     ) {
                         launchSingleTop = true
@@ -39,7 +55,7 @@ fun BottomNavigationBar(
                     }
                 },
                 icon = {
-                    val isSelected = currentDestination == tab.route.value
+                    val isSelected = selectedItemIndex == index
                     Icon(
                         painter = painterResource(
                             if (isSelected) tab.iconRes.first()

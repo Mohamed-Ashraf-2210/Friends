@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.trrycaar.friends.presentation.composable.BottomNavigationBar
 import com.trrycaar.friends.presentation.composable.TopAppBar
+import com.trrycaar.friends.presentation.composable.bottomTabs
 import com.trrycaar.friends.presentation.navigation.FriendsNavGraph
 
 @Composable
@@ -18,7 +19,7 @@ fun FriendsRoot() {
             TopAppBar()
         },
         bottomBar = {
-            BottomNavigationBar(navController)
+            BottomNavigationBar(navController, bottomTabs)
         }
     ) { padding ->
         FriendsNavGraph(
