@@ -5,7 +5,6 @@ import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.mapper.toEntity
 import com.trrycaar.friends.data.remote.dto.posts.PostsDto
 import com.trrycaar.friends.data.util.constants.EndPoints.BASE_URL
-import com.trrycaar.friends.data.util.constants.EndPoints.LIKES
 import com.trrycaar.friends.data.util.constants.EndPoints.POSTS
 import com.trrycaar.friends.data.util.network.safeApiCall
 import com.trrycaar.friends.domain.entity.Post
@@ -13,10 +12,6 @@ import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.domain.util.Result
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 
 class PostRepositoryImpl(
     private val client: HttpClient,
@@ -41,12 +36,7 @@ class PostRepositoryImpl(
     }
 
     override suspend fun addPostToFavorites(postId: String) {
-        return safeApiCall {
-            client.post(BASE_URL + POSTS + postId + LIKES) {
-                contentType(ContentType.Application.Json)
-                setBody(mapOf("userId" to 1))
-            }
-        }
+
     }
 
     override suspend fun getFavoritePosts(): List<Post> {
