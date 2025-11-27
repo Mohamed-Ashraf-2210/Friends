@@ -2,7 +2,7 @@ package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
-import com.trrycaar.friends.NetworkMonitor
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.FavoritePostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel

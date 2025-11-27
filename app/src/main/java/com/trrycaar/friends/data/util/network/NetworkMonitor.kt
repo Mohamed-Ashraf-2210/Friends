@@ -1,4 +1,4 @@
-package com.trrycaar.friends
+package com.trrycaar.friends.data.util.network
 
 import android.content.Context
 import android.net.ConnectivityManager
