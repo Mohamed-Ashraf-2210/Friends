@@ -34,12 +34,4 @@ class PostRepositoryImpl(
             }
         }
     }
-
-    override suspend fun addPostToFavorites(postId: String) {
-
-    }
-
-    override suspend fun getFavoritePosts(): List<Post> {
-        TODO("Not yet implemented")
-    }
 }
