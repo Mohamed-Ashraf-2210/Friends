@@ -2,12 +2,15 @@ package com.trrycaar.friends.di
 
 import androidx.room.Room
 import com.trrycaar.friends.data.local.FriendsDatabase
+import com.trrycaar.friends.data.local.dataSource.FavoritePostsLocalDataSource
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.repository.CommentRepositoryImpl
+import com.trrycaar.friends.data.repository.FavoritePostRepositoryImpl
 import com.trrycaar.friends.data.repository.PostRepositoryImpl
 import com.trrycaar.friends.data.util.constants.Constants.DATABASE_NAME
 import com.trrycaar.friends.data.util.network.buildApiClient
 import com.trrycaar.friends.domain.repository.CommentRepository
+import com.trrycaar.friends.domain.repository.FavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeViewModel
 import com.trrycaar.friends.presentation.screen.postDetails.viewModel.PostDetailsViewModel
@@ -27,10 +30,13 @@ val friendsModule = module {
             .build()
     }
     single { get<FriendsDatabase>().postDao() }
+    single { get<FriendsDatabase>().favoritePostsDao() }
     single { PostLocalDataSource(get()) }
+    single { FavoritePostsLocalDataSource(get()) }
 
     single<PostRepository> { PostRepositoryImpl(get(), get()) }
     single<CommentRepository> { CommentRepositoryImpl(get()) }
+    single<FavoritePostRepository> { FavoritePostRepositoryImpl(get(), get()) }
 
     single<CoroutineDispatcher> { Dispatchers.IO }
     viewModelOf(::HomeViewModel)
