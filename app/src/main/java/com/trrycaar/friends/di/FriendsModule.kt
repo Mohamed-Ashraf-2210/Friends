@@ -12,6 +12,7 @@ import com.trrycaar.friends.data.util.network.buildApiClient
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.FavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.presentation.screen.favoritePosts.viewModel.FavoritePostsViewModel
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeViewModel
 import com.trrycaar.friends.presentation.screen.postDetails.viewModel.PostDetailsViewModel
 import io.ktor.client.HttpClient
@@ -41,4 +42,5 @@ val friendsModule = module {
     single<CoroutineDispatcher> { Dispatchers.IO }
     viewModelOf(::HomeViewModel)
     viewModelOf(::PostDetailsViewModel)
+    viewModelOf(::FavoritePostsViewModel)
 }
