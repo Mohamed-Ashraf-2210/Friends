@@ -7,6 +7,8 @@ import com.trrycaar.friends.domain.repository.FavoritePostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class NetworkMonitor(
@@ -18,18 +20,18 @@ class NetworkMonitor(
     private val networkCallback: ConnectivityManager.NetworkCallback
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    @Volatile
-    private var isConnected: Boolean = false
+    private var _isConnected = MutableStateFlow(false)
+    val isConnected: StateFlow<Boolean> = _isConnected
 
     init {
         val network = connectivityManager.activeNetwork
-        isConnected = network != null
+        _isConnected.value = network != null
 
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                if (!isConnected) {
-                    isConnected = true
+                if (!_isConnected.value) {
+                    _isConnected.value = true
                     scope.launch {
                         favoritePostRepository.syncOfflineFavorites()
                     }
@@ -38,7 +40,7 @@ class NetworkMonitor(
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                isConnected = false
+                _isConnected.value = false
             }
         }
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
@@ -47,8 +49,5 @@ class NetworkMonitor(
     fun unregister() {
         connectivityManager.unregisterNetworkCallback(networkCallback)
         scope.cancel()
-    }
-    fun isOnline(): Boolean {
-        return isConnected
     }
 }

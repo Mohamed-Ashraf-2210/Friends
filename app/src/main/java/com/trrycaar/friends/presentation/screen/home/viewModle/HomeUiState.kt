@@ -1,8 +1,7 @@
 package com.trrycaar.friends.presentation.screen.home.viewModle
 
 data class HomeUiState(
-    val posts: List<PostUiState> = emptyList(),
-    val errorMessage: String? = null
+    val posts: List<PostUiState> = emptyList()
 ) {
     data class PostUiState(
         val id: String,

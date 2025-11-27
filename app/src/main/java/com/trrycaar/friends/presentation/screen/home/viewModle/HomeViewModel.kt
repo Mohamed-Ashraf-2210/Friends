@@ -1,43 +1,48 @@
 package com.trrycaar.friends.presentation.screen.home.viewModle
 
 import androidx.lifecycle.viewModelScope
+import com.trrycaar.friends.NetworkMonitor
 import com.trrycaar.friends.domain.repository.PostRepository
-import com.trrycaar.friends.domain.util.Result
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class HomeViewModel(
     private val postRepository: PostRepository,
+    private val networkMonitor: NetworkMonitor,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<HomeUiState, HomeEffects>(
     initialState = HomeUiState(),
     defaultDispatcher = defaultDispatcher
 ) {
+    private var flowConnected: Boolean = networkMonitor.isConnected.value
+
     init {
         loadPosts()
+        checkNetworkConnection()
     }
 
     private fun loadPosts() {
-        viewModelScope.launch(defaultDispatcher) {
-            val result = postRepository.getPosts()
-            withContext(Dispatchers.Main) {
+        tryToExecute(
+            block = { postRepository.getPosts() },
+            onSuccess = { posts ->
+                val postUiStates = posts.map { it.toUiState() }
+                updateState { copy(posts = postUiStates) }
+            }
+        )
+    }
 
-                when (result) {
-                    is Result.Success -> {
-                        val postUiStates = result.data.map { it.toUiState() }
-                        updateState { copy(posts = postUiStates, errorMessage = null) }
+    private fun checkNetworkConnection() {
+        viewModelScope.launch {
+            networkMonitor.isConnected.collect {
+                if (flowConnected != it) {
+                    flowConnected = it
+                    if (it) {
+                        emitEffect(HomeEffects.ShowMessage("Online connection"))
+                    } else {
+                        emitEffect(HomeEffects.ShowMessage("Offline connection"))
                     }
-
-                    is Result.Error -> {
-                        val postUiStates = result.cachedData?.map { it.toUiState() } ?: emptyList()
-                        updateState { copy(posts = postUiStates, errorMessage = result.message) }
-                        emitEffect(HomeEffects.ShowMessage(result.message))
-                    }
-
-                    else -> {}
                 }
             }
         }

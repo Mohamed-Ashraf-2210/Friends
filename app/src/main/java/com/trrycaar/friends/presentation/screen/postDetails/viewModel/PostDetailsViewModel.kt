@@ -39,15 +39,15 @@ class PostDetailsViewModel(
     }
 
     fun addPostToFavorites() {
-        emitEffect(PostDetailsEffect.ShowMessage("Post added to favorites"))
         tryToExecute(
             block = {
-                if (networkMonitor.isOnline())
+                if (networkMonitor.isConnected.value)
                     favoritePostRepository.addPostToFavorite(postId)
                 else
                     favoritePostRepository.addPostToOfflineFavorite(postId)
             }
         )
+        emitEffect(PostDetailsEffect.ShowMessage("Post added to favorites"))
     }
 
 }
