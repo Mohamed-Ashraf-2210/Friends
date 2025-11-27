@@ -1,4 +1,4 @@
-package com.trrycaar.friends.presentation.screen.home.composable
+package com.trrycaar.friends.presentation.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
-import com.trrycaar.friends.presentation.screen.home.composable.PostItem
+import com.trrycaar.friends.presentation.composable.PostItem
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeEffects
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeUiState
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeViewModel
