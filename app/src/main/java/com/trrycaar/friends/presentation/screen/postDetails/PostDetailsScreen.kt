@@ -1,6 +1,7 @@
 package com.trrycaar.friends.presentation.screen.postDetails
 
-import androidx.compose.foundation.background
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,10 +36,15 @@ fun PostDetailsScreen(
     viewModel: PostDetailsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     ObserveAsEffect(viewModel.effect) {
         when (it) {
             PostDetailsEffect.NavigateBack -> {
                 navController.popBackStack()
+            }
+
+            is PostDetailsEffect.ShowMessage -> {
+                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -47,12 +54,31 @@ fun PostDetailsScreen(
 @Composable
 private fun PostDetailsContent(state: PostDetailsUiState, viewModel: PostDetailsViewModel) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Comments",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding( top = 16.dp, bottom = 8.dp).align(Alignment.CenterHorizontally)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Comments",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_favorite),
+                modifier = Modifier
+                    .clickable(
+                        interactionSource = null,
+                        indication = null
+                    ) {
+                        viewModel.addPostToFavorites()
+                    },
+                contentDescription = null
+            )
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(vertical = 8.dp)
@@ -65,25 +91,5 @@ private fun PostDetailsContent(state: PostDetailsUiState, viewModel: PostDetails
                 )
             }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.onBackground),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Text(
-                text = "Add to Favorites",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_favorite_filled),
-                contentDescription = null,
-            )
-        }
-
     }
 }

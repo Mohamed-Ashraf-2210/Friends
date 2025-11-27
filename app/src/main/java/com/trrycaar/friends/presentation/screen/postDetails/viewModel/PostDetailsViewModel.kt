@@ -34,4 +34,8 @@ class PostDetailsViewModel(
         )
     }
 
+    fun addPostToFavorites() {
+        emitEffect(PostDetailsEffect.ShowMessage("Post added to favorites"))
+    }
+
 }
