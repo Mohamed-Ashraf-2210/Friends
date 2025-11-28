@@ -1,7 +1,7 @@
 package com.trrycaar.friends.di
 
 import androidx.room.Room
-import com.trrycaar.friends.data.util.network.NetworkMonitor
+import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.FavoritePostsLocalDataSource
 import com.trrycaar.friends.data.local.dataSource.OfflineFavoritePostsLocalDataSource

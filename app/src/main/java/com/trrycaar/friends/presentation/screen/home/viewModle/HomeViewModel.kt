@@ -1,7 +1,7 @@
 package com.trrycaar.friends.presentation.screen.home.viewModle
 
 import androidx.lifecycle.viewModelScope
-import com.trrycaar.friends.data.util.network.NetworkMonitor
+import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
