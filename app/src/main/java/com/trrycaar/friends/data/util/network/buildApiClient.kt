@@ -20,5 +20,6 @@ fun buildApiClient() = HttpClient(Android) {
     }
     install(HttpTimeout) {
         requestTimeoutMillis = 15000
+        connectTimeoutMillis = 15_000
     }
 }
