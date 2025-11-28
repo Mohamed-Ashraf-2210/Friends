@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 
 class BasePagingSource<T : Any>(
     private val getDataFromApi: suspend (Int, pageSize: Int) -> List<T>,
-    private val getDataFromDataBase: suspend (Int, pageSize: Int) -> List<T>,
+    private val getDataFromDataBase: (suspend (Int, pageSize: Int) -> List<T>)? = null,
     private val saveDataToDataBase: (suspend (List<T>) -> Unit)? = null,
     private val onError: (Throwable) -> Unit = {},
     private val pageSize: Int = 10
@@ -29,12 +29,11 @@ class BasePagingSource<T : Any>(
                             saveDataToDataBase?.invoke(apiData)
                         }
                     }.ifEmpty {
-                        getDataFromDataBase(position, pageSize)
+                        getDataFromDataBase?.invoke(position, pageSize) ?: emptyList()
                     }
-                } catch (_: Exception) {
-                    getDataFromDataBase(position, pageSize)
+                } catch (e: Exception) {
+                    getDataFromDataBase?.invoke(position, pageSize) ?: throw e
                 }
-
             }
             LoadResult.Page(
                 data = data,
@@ -42,8 +41,8 @@ class BasePagingSource<T : Any>(
                 nextKey = if (data.isEmpty()) null else position + 1
             )
         } catch (e: Exception) {
-                onError(e)
-                LoadResult.Error(e)
+            onError(e)
+            LoadResult.Error(e)
         }
     }
 }

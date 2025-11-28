@@ -1,8 +1,7 @@
 package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 
 data class PostDetailsUiState(
-    val comment: List<CommentUiState> = emptyList(),
-    val isFavorite: Boolean = false
+    val state: State = State.LOADING
 ) {
     data class CommentUiState(
         val id: String,
@@ -10,4 +9,10 @@ data class PostDetailsUiState(
         val email: String,
         val body: String
     )
+
+    enum class State {
+        LOADING,
+        SUCCESS,
+        ERROR,
+    }
 }
