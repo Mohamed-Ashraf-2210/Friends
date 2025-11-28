@@ -30,7 +30,7 @@ class PostRepositoryImpl(
             ),
             pagingSourceFactory = {
                 BasePagingSource(
-                    pageSize = 30,
+                    pageSize = 10,
                     onError = { throw it },
                     getDataFromApi = { page, pageSize ->
                         val response: PostsDto = safeApiCall {

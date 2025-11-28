@@ -25,7 +25,4 @@ interface PostDao {
     """
     )
     suspend fun getFavoritePosts(): List<PostEntity>
-
-    @Query("DELETE FROM $POSTS_TABLE_NAME")
-    suspend fun clearPosts()
 }

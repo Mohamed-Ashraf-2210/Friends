@@ -30,12 +30,4 @@ class PostLocalDataSource(
             throw FriendDatabaseException("Failed to get favorite posts")
         }
     }
-
-    suspend fun clearPosts() {
-        try {
-            postDao.clearPosts()
-        } catch (_: Exception) {
-            throw FriendDatabaseException("Failed to clear posts")
-        }
-    }
 }

@@ -11,12 +11,6 @@ fun PostDto.toDomain() = Post(
     body = body
 )
 
-fun PostDto.toEntity() = PostEntity(
-    id = id.toString(),
-    title = title,
-    body = body
-)
-
 fun PostEntity.toDomain() = Post(
     id = id,
     userId = "",
