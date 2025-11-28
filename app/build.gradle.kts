@@ -66,4 +66,5 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.bundles.paging)
 }

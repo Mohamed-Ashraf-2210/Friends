@@ -15,7 +15,7 @@ koin = "4.1.1"
 navigation = "2.9.6"
 room = "2.8.4"
 ksp = "2.2.0-2.0.2"
-
+paging = "3.3.0"
 [libraries]
 kotlinx-coroutines-android = {module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = {module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -39,6 +39,9 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+paging_runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
+paging_compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -88,4 +91,9 @@ koin = [
 room = [
     "androidx-room-ktx",
     "androidx-room-runtime"
+]
+
+paging = [
+    "paging_runtime",
+    "paging_compose"
 ]
