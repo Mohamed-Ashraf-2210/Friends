@@ -1,33 +1,9 @@
 package com.trrycaar.friends.data.local.dataSource
 
-import com.trrycaar.friends.data.local.dao.PostDao
 import com.trrycaar.friends.data.local.entity.PostEntity
-import com.trrycaar.friends.domain.exception.FriendDatabaseException
 
-class PostLocalDataSource(
-    private val postDao: PostDao
-) {
-    suspend fun savePosts(posts: List<PostEntity>) {
-        try {
-            postDao.insertPosts(posts)
-        } catch (_: Exception) {
-            throw FriendDatabaseException("Failed to save posts")
-        }
-    }
-
-    suspend fun getPosts(page: Int, pageSize: Int): List<PostEntity> {
-        return try {
-            postDao.getPostsPaginated(page, pageSize)
-        } catch (_: Exception) {
-            throw FriendDatabaseException("Failed to get posts")
-        }
-    }
-
-    suspend fun getFavoritePosts(): List<PostEntity> {
-        return try {
-            postDao.getFavoritePosts()
-        } catch (_: Exception) {
-            throw FriendDatabaseException("Failed to get favorite posts")
-        }
-    }
+interface PostLocalDataSource {
+    suspend fun savePosts(posts: List<PostEntity>)
+    suspend fun getPosts(page: Int, pageSize: Int): List<PostEntity>
+    suspend fun getFavoritePosts(): List<PostEntity>
 }
