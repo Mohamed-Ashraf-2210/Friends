@@ -13,8 +13,8 @@ interface PostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPosts(posts: List<PostEntity>)
 
-    @Query("SELECT * FROM $POSTS_TABLE_NAME")
-    suspend fun getPosts(): List<PostEntity>
+    @Query("SELECT * FROM $POSTS_TABLE_NAME LIMIT :pageSize OFFSET (:page - 1) * :pageSize")
+    suspend fun getPostsPaginated(page: Int, pageSize: Int): List<PostEntity>
 
     @Query(
         """

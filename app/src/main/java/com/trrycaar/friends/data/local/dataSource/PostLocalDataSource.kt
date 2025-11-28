@@ -15,9 +15,9 @@ class PostLocalDataSource(
         }
     }
 
-    suspend fun getPosts(): List<PostEntity> {
+    suspend fun getPosts(page: Int, pageSize: Int): List<PostEntity> {
         return try {
-            postDao.getPosts()
+            postDao.getPostsPaginated(page, pageSize)
         } catch (_: Exception) {
             throw FriendDatabaseException("Failed to get posts")
         }

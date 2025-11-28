@@ -7,5 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PostsDto(
     @SerialName("data")
-    val posts: List<PostDto>
+    val posts: List<PostDto>,
+    @SerialName("pagination")
+    val pagination: Pagination
 )

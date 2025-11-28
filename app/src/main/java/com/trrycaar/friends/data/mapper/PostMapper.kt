@@ -23,3 +23,9 @@ fun PostEntity.toDomain() = Post(
     title = title,
     body = body
 )
+
+fun Post.toEntity() = PostEntity(
+    id = id,
+    title = title,
+    body = body
+)
