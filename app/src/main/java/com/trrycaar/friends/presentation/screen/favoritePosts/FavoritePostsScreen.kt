@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -47,18 +48,23 @@ fun FavoritePostsScreen(
 
 @Composable
 fun FavoritePostsContent(state: FavoritePostsUiState, viewModel: FavoritePostsViewModel) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp)
+    PullToRefreshBox(
+        isRefreshing = state.isRefreshing,
+        onRefresh = viewModel::refreshFavoritePosts,
     ) {
-        items(state.favoritePosts.size) { index ->
-            val post = state.favoritePosts[index]
-            PostItem(
-                id = post.id,
-                title = post.title,
-                body = post.body,
-                onClick = viewModel::onPostClicked
-            )
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 8.dp)
+        ) {
+            items(state.favoritePosts.size) { index ->
+                val post = state.favoritePosts[index]
+                PostItem(
+                    id = post.id,
+                    title = post.title,
+                    body = post.body,
+                    onClick = viewModel::onPostClicked
+                )
+            }
         }
     }
 }

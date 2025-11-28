@@ -30,4 +30,10 @@ class FavoritePostsViewModel(
     fun onPostClicked(postId: String) {
         emitEffect(FavoritePostsEffects.NavigateToPostDetails(postId))
     }
+
+    fun refreshFavoritePosts() {
+        updateState { copy(isRefreshing = true) }
+        loadFavoritePosts()
+        updateState { copy(isRefreshing = false) }
+    }
 }
