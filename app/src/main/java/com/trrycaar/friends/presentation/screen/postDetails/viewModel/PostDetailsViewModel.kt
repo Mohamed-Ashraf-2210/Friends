@@ -7,7 +7,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.trrycaar.friends.core.network.NetworkMonitor
-import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
@@ -15,14 +14,16 @@ import com.trrycaar.friends.presentation.base.BaseViewModel
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class PostDetailsViewModel(
     private val postRepository: PostRepository,
-    private val commentRepository: CommentRepository,
     private val favoritePostRepository: OfflineFavoritePostRepository,
     private val networkMonitor: NetworkMonitor,
+    commentRepository: CommentRepository,
     savedStateHandle: SavedStateHandle,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<PostDetailsUiState, PostDetailsEffect>(
@@ -30,36 +31,18 @@ class PostDetailsViewModel(
     defaultDispatcher = defaultDispatcher
 ) {
     private val postId = savedStateHandle.toRoute<FriendsRoute.PostDetailsScreenRoute>().postId
-    private val _commentsPaging =
-        MutableStateFlow<PagingData<PostDetailsUiState.CommentUiState>>(PagingData.empty())
-    val commentsPaging: StateFlow<PagingData<PostDetailsUiState.CommentUiState>> = _commentsPaging
 
-    init {
-        loadComments()
-    }
-
-    private fun loadComments() {
-        tryToCollect(
-            onStart = ::onLoadCommentsStart,
-            block = { commentRepository.getCommentsPost(postId).cachedIn(viewModelScope) },
-            onCollect = ::onLoadCommentsSuccess,
-            onError = ::onLoadCommentsError
-        )
-    }
-
-    private fun onLoadCommentsStart() {
-        updateState { copy(state = PostDetailsUiState.State.LOADING) }
-    }
-
-    private fun onLoadCommentsSuccess(pagingData: PagingData<Comment>) {
-        _commentsPaging.value = pagingData.map { it.toUiState() }
-        updateState { copy(state = PostDetailsUiState.State.SUCCESS) }
-    }
-
-    private fun onLoadCommentsError(throwable: Throwable) {
-        emitEffect(PostDetailsEffect.ShowMessage("Error loading comments: ${throwable.message}"))
-        updateState { copy(state = PostDetailsUiState.State.ERROR) }
-    }
+    val commentsPaging: StateFlow<PagingData<PostDetailsUiState.CommentUiState>> =
+        commentRepository.getCommentsPost(postId)
+            .cachedIn(viewModelScope)
+            .map { pagingData ->
+                pagingData.map { it.toUiState() }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = PagingData.empty()
+            )
 
     fun addPostToFavorites() {
         tryToExecute(
@@ -72,5 +55,4 @@ class PostDetailsViewModel(
         )
         emitEffect(PostDetailsEffect.ShowMessage("Post added to favorites"))
     }
-
 }

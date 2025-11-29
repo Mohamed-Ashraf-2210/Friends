@@ -1,7 +1,7 @@
 package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 
 data class PostDetailsUiState(
-    val state: State = State.LOADING
+    val errorMessage: String = ""
 ) {
     data class CommentUiState(
         val id: String = "",
@@ -9,10 +9,4 @@ data class PostDetailsUiState(
         val email: String = "",
         val body: String = ""
     )
-
-    enum class State {
-        LOADING,
-        SUCCESS,
-        ERROR,
-    }
 }

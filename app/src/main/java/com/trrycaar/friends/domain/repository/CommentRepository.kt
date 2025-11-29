@@ -5,5 +5,5 @@ import com.trrycaar.friends.domain.entity.Comment
 import kotlinx.coroutines.flow.Flow
 
 interface CommentRepository {
-    suspend fun getCommentsPost(postId: String): Flow<PagingData<Comment>>
+    fun getCommentsPost(postId: String): Flow<PagingData<Comment>>
 }
