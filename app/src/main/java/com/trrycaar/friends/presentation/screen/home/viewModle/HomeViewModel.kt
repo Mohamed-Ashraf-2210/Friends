@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -33,13 +34,25 @@ class HomeViewModel(
 
     private fun loadPosts() {
         tryToCollect(
-            onStart = { updateState { copy(state = HomeUiState.State.LOADING) } },
+            onStart = ::onLoadPostsStart,
             block = { postRepository.getPostsPaging().cachedIn(viewModelScope) },
-            onCollect = { pagingData ->
-                _postsPaging.value = pagingData.map { it.toUiState() }
-                updateState { copy(state = HomeUiState.State.SUCCESS) }
-            }
+            onCollect = ::onLoadPostsSuccess,
+            onError = ::onLoadPostsError
         )
+    }
+
+    private fun onLoadPostsStart() {
+        { updateState { copy(state = HomeUiState.State.LOADING) } }
+    }
+
+    private fun onLoadPostsSuccess(pagingData: PagingData<Post>) {
+        _postsPaging.value = pagingData.map { it.toUiState() }
+        updateState { copy(state = HomeUiState.State.SUCCESS) }
+    }
+
+    private fun onLoadPostsError(throwable: Throwable) {
+        emitEffect(HomeEffects.ShowMessage("Error loading posts: ${throwable.message}"))
+        updateState { copy(state = HomeUiState.State.SUCCESS) }
     }
 
     private fun checkNetworkConnection() {

@@ -10,6 +10,7 @@ data class HomeUiState(
     )
     enum class State {
         LOADING,
-        SUCCESS
+        SUCCESS,
+        ERROR
     }
 }

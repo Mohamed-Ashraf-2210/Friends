@@ -80,6 +80,8 @@ private fun HomeContent(
                     }
                 }
             }
+
+            HomeUiState.State.ERROR -> {}
         }
     }
 }
