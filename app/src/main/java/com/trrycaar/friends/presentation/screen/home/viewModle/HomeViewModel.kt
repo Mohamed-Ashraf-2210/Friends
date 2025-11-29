@@ -42,7 +42,7 @@ class HomeViewModel(
     }
 
     private fun onLoadPostsStart() {
-        { updateState { copy(state = HomeUiState.State.LOADING) } }
+        updateState { copy(state = HomeUiState.State.LOADING) }
     }
 
     private fun onLoadPostsSuccess(pagingData: PagingData<Post>) {

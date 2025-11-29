@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.FavoritePostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
@@ -37,17 +38,25 @@ class PostDetailsViewModel(
 
     private fun loadComments() {
         tryToCollect(
-            onStart = { updateState { copy(state = PostDetailsUiState.State.LOADING) } },
+            onStart = ::onLoadCommentsStart,
             block = { commentRepository.getCommentsPost(postId).cachedIn(viewModelScope) },
-            onCollect = { pagingData ->
-                _commentsPaging.value = pagingData.map { it.toUiState() }
-                updateState { copy(state = PostDetailsUiState.State.SUCCESS) }
-            },
-            onError = {
-                updateState { copy(state = PostDetailsUiState.State.ERROR) }
-                emitEffect(PostDetailsEffect.ShowMessage("Failed to load comments"))
-            }
+            onCollect = ::onLoadCommentsSuccess,
+            onError = ::onLoadCommentsError
         )
+    }
+
+    private fun onLoadCommentsStart() {
+        updateState { copy(state = PostDetailsUiState.State.LOADING) }
+    }
+
+    private fun onLoadCommentsSuccess(pagingData: PagingData<Comment>) {
+        _commentsPaging.value = pagingData.map { it.toUiState() }
+        updateState { copy(state = PostDetailsUiState.State.SUCCESS) }
+    }
+
+    private fun onLoadCommentsError(throwable: Throwable) {
+        emitEffect(PostDetailsEffect.ShowMessage("Error loading comments: ${throwable.message}"))
+        updateState { copy(state = PostDetailsUiState.State.ERROR) }
     }
 
     fun addPostToFavorites() {
