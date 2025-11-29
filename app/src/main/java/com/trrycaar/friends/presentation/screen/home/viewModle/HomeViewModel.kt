@@ -5,17 +5,18 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.trrycaar.friends.core.network.NetworkMonitor
-import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val postRepository: PostRepository,
+    postRepository: PostRepository,
     private val networkMonitor: NetworkMonitor,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<HomeUiState, HomeEffects>(
@@ -23,36 +24,26 @@ class HomeViewModel(
     defaultDispatcher = defaultDispatcher
 ) {
     private var flowConnected: Boolean = networkMonitor.isConnected.value
-    private val _postsPaging =
-        MutableStateFlow<PagingData<HomeUiState.PostUiState>>(PagingData.empty())
-    val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> = _postsPaging
+
+    val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> =
+        postRepository.getPostsPaging()
+            .cachedIn(viewModelScope)
+            .map { pagingData ->
+                pagingData.map { it.toUiState() }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = PagingData.empty()
+            )
 
     init {
-        loadPosts()
         checkNetworkConnection()
     }
 
-    private fun loadPosts() {
-        tryToCollect(
-            onStart = ::onLoadPostsStart,
-            block = { postRepository.getPostsPaging().cachedIn(viewModelScope) },
-            onCollect = ::onLoadPostsSuccess,
-            onError = ::onLoadPostsError
-        )
-    }
 
-    private fun onLoadPostsStart() {
-        updateState { copy(state = HomeUiState.State.LOADING) }
-    }
-
-    private fun onLoadPostsSuccess(pagingData: PagingData<Post>) {
-        _postsPaging.value = pagingData.map { it.toUiState() }
-        updateState { copy(state = HomeUiState.State.SUCCESS) }
-    }
-
-    private fun onLoadPostsError(throwable: Throwable) {
-        emitEffect(HomeEffects.ShowMessage("Error loading posts: ${throwable.message}"))
-        updateState { copy(state = HomeUiState.State.ERROR) }
+    fun showMessage(message: String) {
+        emitEffect(HomeEffects.ShowMessage("Error loading posts: $message"))
     }
 
     private fun checkNetworkConnection() {

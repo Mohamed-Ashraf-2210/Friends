@@ -47,14 +47,6 @@ class HomeViewModelTest {
         Dispatchers.resetMain()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `loadPosts SHOULD update state to SUCCESS`() = runTest {
-        advanceUntilIdle()
-
-        val state = homeViewModel.state.value
-        assertEquals(HomeUiState.State.SUCCESS, state.state)
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
@@ -81,10 +73,46 @@ class HomeViewModelTest {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `networkMonitor SHOULD emit Online connection`() = runTest {
+        Dispatchers.resetMain()
+        val offlineFakeNetworkFlow = MutableStateFlow(false)
+        val offlineNetworkMonitor = mockk<NetworkMonitor> {
+            coEvery { isConnected } returns offlineFakeNetworkFlow
+        }
+        val offlineViewModel = HomeViewModel(postRepository, offlineNetworkMonitor, testDispatcher)
+        Dispatchers.setMain(testDispatcher)
+
+        offlineViewModel.effect.test {
+            offlineFakeNetworkFlow.value = true
+            advanceUntilIdle()
+
+            val effect = awaitItem()
+            assertEquals("Online connection", (effect as HomeEffects.ShowMessage).message)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `showMessage SHOULD emit generic ShowMessage effect`() = runTest {
+        homeViewModel.effect.test {
+            val testMessage = "Test Error"
+            homeViewModel.showMessage(testMessage)
+
+            val effect = awaitItem()
+            assertEquals(
+                "Error loading posts: $testMessage",
+                (effect as HomeEffects.ShowMessage).message
+            )
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
     private fun dummyPost() = Post(
         id = "1",
         title = "Test Post",
         body = "This is a test post body.",
-        userId = "user1"
+        isFavorite = false
     )
 }
