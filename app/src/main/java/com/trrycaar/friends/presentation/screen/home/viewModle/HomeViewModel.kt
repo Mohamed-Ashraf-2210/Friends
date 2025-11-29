@@ -52,7 +52,7 @@ class HomeViewModel(
 
     private fun onLoadPostsError(throwable: Throwable) {
         emitEffect(HomeEffects.ShowMessage("Error loading posts: ${throwable.message}"))
-        updateState { copy(state = HomeUiState.State.SUCCESS) }
+        updateState { copy(state = HomeUiState.State.ERROR) }
     }
 
     private fun checkNetworkConnection() {

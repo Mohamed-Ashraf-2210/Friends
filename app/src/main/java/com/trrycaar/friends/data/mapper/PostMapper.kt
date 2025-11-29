@@ -6,20 +6,21 @@ import com.trrycaar.friends.domain.entity.Post
 
 fun PostDto.toDomain() = Post(
     id = id.toString(),
-    userId = userId.toString(),
     title = title,
-    body = body
+    body = body,
+    isFavorite = false
 )
 
 fun PostEntity.toDomain() = Post(
     id = id,
-    userId = "",
     title = title,
-    body = body
+    body = body,
+    isFavorite = isFavorite
 )
 
 fun Post.toEntity() = PostEntity(
     id = id,
     title = title,
-    body = body
+    body = body,
+    isFavorite = isFavorite
 )

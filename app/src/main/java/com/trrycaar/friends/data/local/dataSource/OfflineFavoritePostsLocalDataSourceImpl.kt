@@ -15,7 +15,7 @@ class OfflineFavoritePostsLocalDataSourceImpl(
         }
     }
 
-    override suspend fun getAllPosts(): List<OfflineFavoritePostEntity> {
+    override suspend fun getAll(): List<OfflineFavoritePostEntity> {
         try {
             return offlineFavoritePostDao.getAllFavoritePosts()
         } catch (_: Exception) {
@@ -23,7 +23,7 @@ class OfflineFavoritePostsLocalDataSourceImpl(
         }
     }
 
-    override suspend fun deleteOfflineFavoritePostById(postId: String) {
+    override suspend fun deleteById(postId: String) {
         try {
             offlineFavoritePostDao.deleteFavoritePostsById(postId)
         } catch (_: Exception) {

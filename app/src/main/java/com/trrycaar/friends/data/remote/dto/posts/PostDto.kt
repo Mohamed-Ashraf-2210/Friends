@@ -11,7 +11,5 @@ data class PostDto(
     @SerialName("id")
     val id: Int,
     @SerialName("title")
-    val title: String,
-    @SerialName("userId")
-    val userId: Int
+    val title: String
 )

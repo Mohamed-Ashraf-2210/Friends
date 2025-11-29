@@ -6,10 +6,15 @@ import com.trrycaar.friends.domain.exception.FriendDatabaseException
 
 class PostLocalDataSourceImpl(
     private val postDao: PostDao
-): PostLocalDataSource {
+) : PostLocalDataSource {
     override suspend fun savePosts(posts: List<PostEntity>) {
         try {
-            postDao.insertPosts(posts)
+            val newPosts = posts.map {
+                postDao.getPostById(it.id)?.let { existingPost ->
+                    it.copy(isFavorite = existingPost.isFavorite)
+                } ?: it
+            }
+            postDao.insertPosts(newPosts)
         } catch (_: Exception) {
             throw FriendDatabaseException("Failed to save posts")
         }
@@ -23,11 +28,19 @@ class PostLocalDataSourceImpl(
         }
     }
 
-    override suspend fun getFavoritePosts(): List<PostEntity> {
+    override suspend fun getFavorites(page: Int, pageSize: Int): List<PostEntity> {
         return try {
-            postDao.getFavoritePosts()
+            postDao.getFavoritePosts(page, pageSize)
         } catch (_: Exception) {
             throw FriendDatabaseException("Failed to get favorite posts")
+        }
+    }
+
+    override suspend fun saveToFavorite(id: String) {
+        try {
+            postDao.saveToFavorite(id)
+        } catch (_: Exception) {
+            throw FriendDatabaseException("Failed to add post to favorite")
         }
     }
 }

@@ -7,7 +7,8 @@ import com.trrycaar.friends.data.util.constants.Constants.POSTS_TABLE_NAME
 
 @Entity(tableName = POSTS_TABLE_NAME)
 data class PostEntity(
-    @PrimaryKey val id: String,
-    val title: String,
-    val body: String
+    @PrimaryKey val id: String = "",
+    val title: String = "",
+    val body: String = "",
+    val isFavorite: Boolean = false
 )

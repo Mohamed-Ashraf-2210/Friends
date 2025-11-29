@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.trrycaar.friends.data.local.entity.PostEntity
-import com.trrycaar.friends.data.util.constants.Constants.FAVORITE_POSTS_TABLE_NAME
 import com.trrycaar.friends.data.util.constants.Constants.POSTS_TABLE_NAME
 
 @Dao
@@ -16,13 +15,12 @@ interface PostDao {
     @Query("SELECT * FROM $POSTS_TABLE_NAME LIMIT :pageSize OFFSET (:page - 1) * :pageSize")
     suspend fun getPostsPaginated(page: Int, pageSize: Int): List<PostEntity>
 
-    @Query(
-        """
-        SELECT p.*
-        FROM $POSTS_TABLE_NAME p
-        INNER JOIN $FAVORITE_POSTS_TABLE_NAME f
-        ON p.id = f.postId
-    """
-    )
-    suspend fun getFavoritePosts(): List<PostEntity>
+    @Query("SELECT * FROM $POSTS_TABLE_NAME WHERE isFavorite = 1 LIMIT :pageSize OFFSET (:page - 1) * :pageSize")
+    suspend fun getFavoritePosts(page: Int, pageSize: Int): List<PostEntity>
+
+    @Query("SELECT * FROM $POSTS_TABLE_NAME WHERE id = :id")
+    suspend fun getPostById(id: String): PostEntity?
+
+    @Query("UPDATE $POSTS_TABLE_NAME SET isFavorite = 1 WHERE id = :id")
+    suspend fun saveToFavorite(id: String)
 }

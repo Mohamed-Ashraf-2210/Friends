@@ -3,7 +3,7 @@ package com.trrycaar.friends.core.network
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
-import com.trrycaar.friends.domain.repository.FavoritePostRepository
+import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class NetworkMonitor(
-    private val favoritePostRepository: FavoritePostRepository,
+    private val offlineFavoritePostRepository: OfflineFavoritePostRepository,
     context: Context
 ) {
     private val connectivityManager =
@@ -33,7 +33,7 @@ class NetworkMonitor(
                 if (!_isConnected.value) {
                     _isConnected.value = true
                     scope.launch {
-                        favoritePostRepository.syncOfflineFavorites()
+                        offlineFavoritePostRepository.syncOfflineFavorites()
                     }
                 }
             }

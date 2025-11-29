@@ -9,7 +9,8 @@ import androidx.paging.map
 import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.domain.repository.FavoritePostRepository
+import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
+import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,8 +19,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class PostDetailsViewModel(
+    private val postRepository: PostRepository,
     private val commentRepository: CommentRepository,
-    private val favoritePostRepository: FavoritePostRepository,
+    private val favoritePostRepository: OfflineFavoritePostRepository,
     private val networkMonitor: NetworkMonitor,
     savedStateHandle: SavedStateHandle,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -63,7 +65,7 @@ class PostDetailsViewModel(
         tryToExecute(
             block = {
                 if (networkMonitor.isConnected.value)
-                    favoritePostRepository.addPostToFavorite(postId)
+                    postRepository.addToFavorite(postId)
                 else
                     favoritePostRepository.addPostToOfflineFavorite(postId)
             }

@@ -1,10 +1,10 @@
 package com.trrycaar.friends.presentation.screen.favoritePosts
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -12,6 +12,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.trrycaar.friends.presentation.composable.LoadingBar
 import com.trrycaar.friends.presentation.composable.PostItem
 import com.trrycaar.friends.presentation.navigation.FriendsRoute.PostDetailsScreenRoute
 import com.trrycaar.friends.presentation.screen.favoritePosts.viewModel.FavoritePostsEffects
@@ -26,6 +29,8 @@ fun FavoritePostsScreen(
     viewModel: FavoritePostsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val favoritePostsPaging = viewModel.favoritePostsPaging.collectAsLazyPagingItems()
+
     val context = LocalContext.current
     ObserveAsEffect(viewModel.effect) {
         when (it) {
@@ -42,29 +47,44 @@ fun FavoritePostsScreen(
             }
         }
     }
-    FavoritePostsContent(state = state, viewModel = viewModel)
+    FavoritePostsContent(state = state, viewModel = viewModel, favoritePostsPaging = favoritePostsPaging)
 
 }
 
 @Composable
-fun FavoritePostsContent(state: FavoritePostsUiState, viewModel: FavoritePostsViewModel) {
-    PullToRefreshBox(
-        isRefreshing = state.isRefreshing,
-        onRefresh = viewModel::refreshFavoritePosts,
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(state.favoritePosts.size) { index ->
-                val post = state.favoritePosts[index]
-                PostItem(
-                    id = post.id,
-                    title = post.title,
-                    body = post.body,
-                    onClick = viewModel::onPostClicked
+fun FavoritePostsContent(
+    state: FavoritePostsUiState,
+    viewModel: FavoritePostsViewModel,
+    favoritePostsPaging: LazyPagingItems<FavoritePostsUiState.PostUiState>
+) {
+    AnimatedContent(state.state) {
+        when (it) {
+            FavoritePostsUiState.State.LOADING -> {
+                LoadingBar(
+                    modifier = Modifier.fillMaxSize()
                 )
             }
+
+            FavoritePostsUiState.State.SUCCESS -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    items(favoritePostsPaging.itemCount) { index ->
+                        favoritePostsPaging[index]?.let { post ->
+                            PostItem(
+                                id = post.id,
+                                title = post.title,
+                                body = post.body,
+                                onClick = viewModel::onPostClicked
+                            )
+                        }
+
+                    }
+                }
+            }
+
+            FavoritePostsUiState.State.ERROR -> {}
         }
     }
 }

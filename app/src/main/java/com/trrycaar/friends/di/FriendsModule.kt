@@ -3,8 +3,6 @@ package com.trrycaar.friends.di
 import androidx.room.Room
 import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.data.local.FriendsDatabase
-import com.trrycaar.friends.data.local.dataSource.FavoritePostsLocalDataSource
-import com.trrycaar.friends.data.local.dataSource.FavoritePostsLocalDataSourceImpl
 import com.trrycaar.friends.data.local.dataSource.OfflineFavoritePostsLocalDataSource
 import com.trrycaar.friends.data.local.dataSource.OfflineFavoritePostsLocalDataSourceImpl
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
@@ -14,12 +12,12 @@ import com.trrycaar.friends.data.remote.dataSource.CommentRemoteDataSourceImpl
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSourceImpl
 import com.trrycaar.friends.data.repository.CommentRepositoryImpl
-import com.trrycaar.friends.data.repository.FavoritePostRepositoryImpl
+import com.trrycaar.friends.data.repository.OfflineFavoritePostRepositoryImpl
 import com.trrycaar.friends.data.repository.PostRepositoryImpl
 import com.trrycaar.friends.data.util.constants.Constants.DATABASE_NAME
 import com.trrycaar.friends.data.util.network.buildApiClient
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.domain.repository.FavoritePostRepository
+import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.favoritePosts.viewModel.FavoritePostsViewModel
 import com.trrycaar.friends.presentation.screen.home.viewModle.HomeViewModel
@@ -41,17 +39,15 @@ val friendsModule = module {
             .build()
     }
     single { get<FriendsDatabase>().postDao() }
-    single { get<FriendsDatabase>().favoritePostsDao() }
     single { get<FriendsDatabase>().offlineFavoritePostDao() }
     single<PostLocalDataSource> { PostLocalDataSourceImpl(get()) }
-    single<FavoritePostsLocalDataSource> { FavoritePostsLocalDataSourceImpl(get()) }
     single<OfflineFavoritePostsLocalDataSource> { OfflineFavoritePostsLocalDataSourceImpl(get()) }
     single<PostRemoteDataSource> { PostRemoteDataSourceImpl(get()) }
     single<CommentRemoteDataSource> { CommentRemoteDataSourceImpl(get()) }
 
     single<PostRepository> { PostRepositoryImpl(get(), get()) }
     single<CommentRepository> { CommentRepositoryImpl(get()) }
-    single<FavoritePostRepository> { FavoritePostRepositoryImpl(get(), get(), get()) }
+    single<OfflineFavoritePostRepository> { OfflineFavoritePostRepositoryImpl(get(), get()) }
 
     single { NetworkMonitor(get(), get()) } onClose { it?.unregister() }
 

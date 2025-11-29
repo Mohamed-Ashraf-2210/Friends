@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class BasePagingSource<T : Any>(
-    private val getDataFromApi: suspend (Int, pageSize: Int) -> List<T>,
+    private val getDataFromApi: (suspend (Int, pageSize: Int) -> List<T>)? = null,
     private val getDataFromDataBase: (suspend (Int, pageSize: Int) -> List<T>)? = null,
     private val saveDataToDataBase: (suspend (List<T>) -> Unit)? = null,
     private val onError: (Throwable) -> Unit = {},
@@ -23,16 +23,20 @@ class BasePagingSource<T : Any>(
         val position = params.key ?: 1
         return try {
             val data: List<T> = withContext(Dispatchers.IO) {
-                try {
-                    getDataFromApi(position, pageSize).also { apiData ->
-                        if (apiData.isNotEmpty()) {
-                            saveDataToDataBase?.invoke(apiData)
+                if (getDataFromApi != null) {
+                    try {
+                        getDataFromApi(position, pageSize).also { apiData ->
+                            if (apiData.isNotEmpty()) {
+                                saveDataToDataBase?.invoke(apiData)
+                            }
+                        }.ifEmpty {
+                            getDataFromDataBase?.invoke(position, pageSize) ?: emptyList()
                         }
-                    }.ifEmpty {
-                        getDataFromDataBase?.invoke(position, pageSize) ?: emptyList()
+                    } catch (e: Exception) {
+                        getDataFromDataBase?.invoke(position, pageSize) ?: throw e
                     }
-                } catch (e: Exception) {
-                    getDataFromDataBase?.invoke(position, pageSize) ?: throw e
+                } else {
+                    getDataFromDataBase?.invoke(position, pageSize) ?: emptyList()
                 }
             }
             LoadResult.Page(
