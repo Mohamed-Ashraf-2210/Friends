@@ -61,12 +61,7 @@ private fun HomeContent(
                     LoadingBar(
                         modifier = Modifier.fillMaxSize()
                     )
-                } else {
-                    val errorState = postsPaging.loadState.refresh as? LoadState.Error
-                    val errorMessage = errorState?.error?.localizedMessage ?: "Unknown Error"
-                    viewModel.showMessage("Error: $errorMessage")
                 }
-
             }
 
             false -> {

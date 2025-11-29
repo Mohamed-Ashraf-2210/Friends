@@ -41,11 +41,6 @@ class HomeViewModel(
         checkNetworkConnection()
     }
 
-
-    fun showMessage(message: String) {
-        emitEffect(HomeEffects.ShowMessage("Error loading posts: $message"))
-    }
-
     private fun checkNetworkConnection() {
         viewModelScope.launch {
             networkMonitor.isConnected.collect {

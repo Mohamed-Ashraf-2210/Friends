@@ -94,20 +94,6 @@ class HomeViewModelTest {
         }
     }
 
-    @Test
-    fun `showMessage SHOULD emit generic ShowMessage effect`() = runTest {
-        homeViewModel.effect.test {
-            val testMessage = "Test Error"
-            homeViewModel.showMessage(testMessage)
-
-            val effect = awaitItem()
-            assertEquals(
-                "Error loading posts: $testMessage",
-                (effect as HomeEffects.ShowMessage).message
-            )
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
 
     private fun dummyPost() = Post(
         id = "1",

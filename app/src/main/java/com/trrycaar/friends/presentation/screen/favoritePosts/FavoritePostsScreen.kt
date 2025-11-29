@@ -6,12 +6,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.trrycaar.friends.presentation.composable.LoadingBar
@@ -28,7 +27,6 @@ fun FavoritePostsScreen(
     navController: NavHostController,
     viewModel: FavoritePostsViewModel = koinViewModel()
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
     val favoritePostsPaging = viewModel.favoritePostsPaging.collectAsLazyPagingItems()
 
     val context = LocalContext.current
@@ -47,25 +45,28 @@ fun FavoritePostsScreen(
             }
         }
     }
-    FavoritePostsContent(state = state, viewModel = viewModel, favoritePostsPaging = favoritePostsPaging)
+    FavoritePostsContent(viewModel = viewModel, favoritePostsPaging = favoritePostsPaging)
 
 }
 
 @Composable
 fun FavoritePostsContent(
-    state: FavoritePostsUiState,
     viewModel: FavoritePostsViewModel,
     favoritePostsPaging: LazyPagingItems<FavoritePostsUiState.PostUiState>
 ) {
-    AnimatedContent(state.state) {
+    val isRefreshing = favoritePostsPaging.loadState.refresh is LoadState.Loading
+    val isError = favoritePostsPaging.loadState.refresh is LoadState.Error
+    AnimatedContent(isRefreshing || isError) {
         when (it) {
-            FavoritePostsUiState.State.LOADING -> {
-                LoadingBar(
-                    modifier = Modifier.fillMaxSize()
-                )
+            true -> {
+                if (isRefreshing) {
+                    LoadingBar(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
 
-            FavoritePostsUiState.State.SUCCESS -> {
+            false -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(vertical = 8.dp)
@@ -79,12 +80,12 @@ fun FavoritePostsContent(
                                 onClick = viewModel::onPostClicked
                             )
                         }
-
+                    }
+                    if (favoritePostsPaging.loadState.append is LoadState.Loading) {
+                        item { LoadingBar(modifier = Modifier.fillMaxSize()) }
                     }
                 }
             }
-
-            FavoritePostsUiState.State.ERROR -> {}
         }
     }
 }
