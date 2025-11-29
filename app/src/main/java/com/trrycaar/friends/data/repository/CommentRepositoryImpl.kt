@@ -7,7 +7,7 @@ import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.remote.dataSource.CommentRemoteDataSource
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.presentation.base.BasePagingSource
+import com.trrycaar.friends.data.util.base.BasePagingSource
 import kotlinx.coroutines.flow.Flow
 
 class CommentRepositoryImpl(

@@ -11,7 +11,7 @@ import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSourceImpl
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
-import com.trrycaar.friends.presentation.base.BasePagingSource
+import com.trrycaar.friends.data.util.base.BasePagingSource
 import kotlinx.coroutines.flow.Flow
 
 class PostRepositoryImpl(

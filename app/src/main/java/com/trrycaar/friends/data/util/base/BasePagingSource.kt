@@ -1,4 +1,4 @@
-package com.trrycaar.friends.presentation.base
+package com.trrycaar.friends.data.util.base
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState

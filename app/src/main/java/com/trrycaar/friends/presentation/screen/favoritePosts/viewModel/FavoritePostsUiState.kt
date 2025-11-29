@@ -5,8 +5,8 @@ data class FavoritePostsUiState(
     val isRefreshing: Boolean = false
 ) {
     data class PostUiState(
-        val id: String,
-        val title: String,
-        val body: String
+        val id: String = "",
+        val title: String = "",
+        val body: String = ""
     )
 }
