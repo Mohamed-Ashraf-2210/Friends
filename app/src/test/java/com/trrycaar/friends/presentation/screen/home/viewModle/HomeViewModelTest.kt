@@ -1,6 +1,8 @@
 package com.trrycaar.friends.presentation.screen.home.viewModle
 
+import android.annotation.SuppressLint
 import androidx.paging.PagingData
+import androidx.paging.map
 import app.cash.turbine.test
 import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Post
@@ -35,10 +37,6 @@ class HomeViewModelTest {
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        coEvery { postRepository.getPostsPaging() } returns flowOf(
-            PagingData.from(listOf(dummyPost()))
-        )
-        homeViewModel = HomeViewModel(postRepository, networkMonitor, testDispatcher)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -47,10 +45,25 @@ class HomeViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun dummyPost(
+        id: String = "1",
+        title: String = "Test Post",
+        body: String = "This is a test post body.",
+        isFavorite: Boolean = false
+    ) = Post(id, title, body, isFavorite)
+
+    private fun createViewModelWithPosts(posts: List<Post> = listOf(dummyPost())) {
+        coEvery { postRepository.getPostsPaging() } returns flowOf(
+            PagingData.from(posts)
+        )
+        homeViewModel = HomeViewModel(postRepository, networkMonitor, testDispatcher)
+    }
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `networkMonitor SHOULD emit Offline connection`() = runTest {
+        createViewModelWithPosts()
         homeViewModel.effect.test {
             fakeNetworkFlow.value = false
             advanceUntilIdle()
@@ -61,21 +74,10 @@ class HomeViewModelTest {
         }
     }
 
-
-    @Test
-    fun `onPostClicked SHOULD emit navigation effect`() = runTest {
-        homeViewModel.effect.test {
-            homeViewModel.onPostClicked("10")
-
-            val effect = awaitItem()
-            assertEquals(HomeEffects.NavigateToPostDetails("10"), effect)
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `networkMonitor SHOULD emit Online connection`() = runTest {
+        createViewModelWithPosts()
         Dispatchers.resetMain()
         val offlineFakeNetworkFlow = MutableStateFlow(false)
         val offlineNetworkMonitor = mockk<NetworkMonitor> {
@@ -94,11 +96,52 @@ class HomeViewModelTest {
         }
     }
 
+    @Test
+    fun `onPostClicked SHOULD emit navigation effect`() = runTest {
+        createViewModelWithPosts()
+        homeViewModel.effect.test {
+            homeViewModel.onPostClicked("10")
 
-    private fun dummyPost() = Post(
-        id = "1",
-        title = "Test Post",
-        body = "This is a test post body.",
-        isFavorite = false
-    )
+            val effect = awaitItem()
+            assertEquals(HomeEffects.NavigateToPostDetails("10"), effect)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+
+    @Test
+    fun `postsPaging SHOULD emit empty PagingData initially`() = runTest {
+        coEvery { postRepository.getPostsPaging() } returns flowOf(PagingData.empty())
+        homeViewModel = HomeViewModel(postRepository, networkMonitor, testDispatcher)
+
+        homeViewModel.postsPaging.test {
+            val pagingData = awaitItem()
+            assertEquals(0, pagingData.collectDataForTest().size)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+
+    @Test
+    fun `toUiState SHOULD convert Post to PostUiState correctly`() = runTest {
+        val post = Post(
+            id = "123",
+            title = "Test Title",
+            body = "Test Body",
+            isFavorite = true
+        )
+
+        val uiState = post.toUiState()
+
+        assertEquals("123", uiState.id)
+        assertEquals("Test Title", uiState.title)
+        assertEquals("Test Body", uiState.body)
+    }
+
+    @SuppressLint("CheckResult")
+    private fun PagingData<HomeUiState.PostUiState>.collectDataForTest(): List<HomeUiState.PostUiState> {
+        var collectedItems = listOf<HomeUiState.PostUiState>()
+        this.map { collectedItems = collectedItems + it }
+        return collectedItems
+    }
 }

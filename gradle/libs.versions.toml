@@ -44,6 +44,7 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 paging_runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
 paging_compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 paging_common = { module = "androidx.paging:paging-common", version.ref = "paging" }
+paging_testing = { module = "androidx.paging:paging-testing", version.ref = "paging" }
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -109,5 +110,6 @@ unit-test = [
     "mockk",
     "truth",
     "turbine",
-    "paging_common"
+    "paging_common",
+    "paging_testing"
 ]
