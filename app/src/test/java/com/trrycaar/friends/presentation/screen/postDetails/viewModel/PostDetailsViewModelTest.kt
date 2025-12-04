@@ -8,8 +8,8 @@ import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.presentation.screen.helper.collectForTest
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,20 +44,9 @@ class PostDetailsViewModelTest {
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        coEvery { commentRepository.getCommentsPost(testPostId) } returns flowOf(
-            PagingData.from(listOf(dummyComment("c1")))
-        )
         networkMonitor = mockk {
             coEvery { isConnected } returns MutableStateFlow(true)
         }
-        viewModel = PostDetailsViewModel(
-            postRepository,
-            favoritePostRepository,
-            networkMonitor,
-            commentRepository,
-            mockSavedStateHandle,
-            testDispatcher
-        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,51 +63,42 @@ class PostDetailsViewModelTest {
         body: String = "This is a test comment."
     ) = Comment(id, postId, name, email, body)
 
-//    @Test
-//    fun `addPostToFavorites SHOULD call PostRepository when online`() = runTest {
-//        val onlineNetworkMonitor = mockk<NetworkMonitor> {
-//            coEvery { isConnected } returns MutableStateFlow(true)
-//        }
-//        val onlineViewModel = PostDetailsViewModel(
-//            postRepository, favoritePostRepository, onlineNetworkMonitor,
-//            commentRepository, mockSavedStateHandle, testDispatcher
-//        )
-//
-//        onlineViewModel.addPostToFavorites()
-//
-//        coVerify(exactly = 1) { postRepository.addToFavorite(testPostId) }
-//        coVerify(exactly = 0) { favoritePostRepository.addPostToOfflineFavorite(any()) }
-//    }
-//    @Test
-//    fun `addPostToFavorites SHOULD call OfflineFavoritePostRepository when offline`() = runTest {
-//        // 1. إعداد الشبكة كـ غير متصلة
-//        val offlineNetworkMonitor = mockk<NetworkMonitor> {
-//            coEvery { isConnected } returns MutableStateFlow(false)
-//        }
-//        val offlineViewModel = PostDetailsViewModel(
-//            postRepository, favoritePostRepository, offlineNetworkMonitor,
-//            commentRepository, mockSavedStateHandle, testDispatcher
-//        )
-//
-//        // 2. تنفيذ الدالة
-//        offlineViewModel.addPostToFavorites()
-//
-//        // 3. التحقق من الاستدعاءات
-//        coVerify(exactly = 0) { postRepository.addToFavorite(any()) }
-//        coVerify(exactly = 1) { favoritePostRepository.addPostToOfflineFavorite(testPostId) }
-//    }
-//
-//    @Test
-//    fun `addPostToFavorites SHOULD emit ShowMessage effect`() = runTest {
-//        viewModel.effect.test {
-//            viewModel.addPostToFavorites()
-//
-//            val effect = awaitItem()
-//            assertEquals(PostDetailsEffect.ShowMessage("Post added to favorites"), effect)
-//            cancelAndIgnoreRemainingEvents()
-//        }
-//    }
+    private fun createViewModelWithComments(comments: List<Comment> = listOf(dummyComment())) {
+        coEvery { commentRepository.getCommentsPost(any()) } returns flowOf(PagingData.from(comments))
+        viewModel = PostDetailsViewModel(
+            postRepository,
+            favoritePostRepository,
+            networkMonitor,
+            commentRepository,
+            mockSavedStateHandle,
+            testDispatcher
+        )
+    }
 
+    @Test
+    fun `commentsPaging SHOULD emit empty PagingData initially`() = runTest {
+        createViewModelWithComments(emptyList())
+        viewModel.commentsPaging.test {
+            val pagingData = awaitItem()
+            assertEquals(0, pagingData.collectForTest().size)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `commentsPaging SHOULD return success`() = runTest {
+        createViewModelWithComments()
+        advanceUntilIdle()
+        viewModel.commentsPaging.test {
+            skipItems(1)
+            val pagingData = awaitItem()
 
+            val items = pagingData.collectForTest()
+
+            assertEquals(1, items.size)
+            assertEquals("1", items[0].id)
+            assertEquals("Test Commenter", items[0].name)
+        }
+    }
 }

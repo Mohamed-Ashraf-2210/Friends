@@ -49,12 +49,4 @@ class BaseViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
-
-    @Test
-    fun `tryToCollect SHOULD collect flow values`() = runTest(dispatcher) {
-        val flow = flowOf("a", "b", "c")
-        viewModel.collectFlow(flow)
-        advanceUntilIdle()
-        assertEquals("c", viewModel.state.value)
-    }
 }

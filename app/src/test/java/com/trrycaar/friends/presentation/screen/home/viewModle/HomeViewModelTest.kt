@@ -128,6 +128,8 @@ class HomeViewModelTest {
             val items = pagingData.collectForTest()
 
             assertEquals(1, items.size)
+            assertEquals("1", items[0].id)
+            assertEquals("Test Post", items[0].title)
         }
     }
 
