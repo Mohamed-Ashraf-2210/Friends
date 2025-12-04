@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.presentation.screen.helper.collectForTest
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -69,12 +70,25 @@ class FavoritePostsViewModelTest {
 
     @Test
     fun `favoritePostsPaging SHOULD emit empty PagingData initially`() = runTest {
-        coEvery { postRepository.getFavoritePostsPaging() } returns flowOf(PagingData.empty())
-        viewModel = FavoritePostsViewModel(postRepository, testDispatcher)
-
+        createViewModelWithPosts(emptyList())
         viewModel.favoritePostsPaging.test {
             val pagingData = awaitItem()
+            assertEquals(0, pagingData.collectForTest().size)
             cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+
+    @Test
+    fun `favoritePostsPaging SHOULD return success`() = runTest {
+        createViewModelWithPosts()
+        viewModel.favoritePostsPaging.test {
+            skipItems(1)
+            val pagingData = awaitItem()
+
+            val items = pagingData.collectForTest()
+
+            assertEquals(1, items.size)
         }
     }
 

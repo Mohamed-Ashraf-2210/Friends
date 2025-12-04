@@ -27,10 +27,4 @@ class FakeViewModel(
         emitEffect("effect")
     }
 
-    fun collectFlow(flow: Flow<String>) {
-        tryToCollect(
-            block = { flow },
-            onCollect = { value -> updateState { value } }
-        )
-    }
 }

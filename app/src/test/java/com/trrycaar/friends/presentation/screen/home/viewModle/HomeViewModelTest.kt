@@ -1,13 +1,11 @@
 package com.trrycaar.friends.presentation.screen.home.viewModle
 
-import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingData
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
 import app.cash.turbine.test
 import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.presentation.screen.helper.collectForTest
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +17,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.yield
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -149,32 +146,5 @@ class HomeViewModelTest {
         assertEquals("123", uiState.id)
         assertEquals("Test Title", uiState.title)
         assertEquals("Test Body", uiState.body)
-    }
-
-
-    suspend fun <T : Any> PagingData<T>.collectForTest(): List<T> {
-        val differ = AsyncPagingDataDiffer(
-            diffCallback = object : DiffUtil.ItemCallback<T>() {
-                override fun areItemsTheSame(oldItem: T, newItem: T): Boolean =
-                    oldItem == newItem
-
-                override fun areContentsTheSame(oldItem: T, newItem: T): Boolean =
-                    oldItem == newItem
-            },
-            updateCallback = NoopListCallback,
-            mainDispatcher = Dispatchers.Main,
-            workerDispatcher = Dispatchers.Main
-        )
-
-        differ.submitData(this)
-        yield()
-        return differ.snapshot().items
-    }
-
-    private object NoopListCallback : ListUpdateCallback {
-        override fun onInserted(position: Int, count: Int) = Unit
-        override fun onRemoved(position: Int, count: Int) = Unit
-        override fun onMoved(fromPosition: Int, toPosition: Int) = Unit
-        override fun onChanged(position: Int, count: Int, payload: Any?) = Unit
     }
 }

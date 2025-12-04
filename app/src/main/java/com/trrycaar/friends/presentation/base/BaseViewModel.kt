@@ -63,25 +63,4 @@ abstract class BaseViewModel<S, E>(
         }
     }
 
-    protected fun <S> tryToCollect(
-        onStart: () -> Unit = {},
-        block: suspend () -> Flow<S>,
-        onCollect: suspend (S) -> Unit,
-        onError: (exception: Throwable) -> Unit = {},
-        dispatcher: CoroutineDispatcher = defaultDispatcher,
-    ) {
-        onStart()
-        val handler = createExceptionHandler(onError)
-        viewModelScope.launch(dispatcher + handler) {
-            try {
-                block()
-                    .catch { onError(it) }
-                    .collectLatest { result ->
-                        onCollect(result)
-                    }
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
 }
