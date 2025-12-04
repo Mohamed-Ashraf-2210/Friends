@@ -7,4 +7,5 @@ interface PostLocalDataSource {
     suspend fun getPosts(page: Int, pageSize: Int): List<PostEntity>
     suspend fun getFavorites(page: Int, pageSize: Int): List<PostEntity>
     suspend fun saveToFavorite(id: String)
+    suspend fun getFavoritePostState(id: String): Boolean
 }

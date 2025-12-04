@@ -43,4 +43,12 @@ class PostLocalDataSourceImpl(
             throw FriendDatabaseException("Failed to add post to favorite")
         }
     }
+
+    override suspend fun getFavoritePostState(id: String): Boolean {
+        return try {
+            postDao.getPostById(id)?.isFavorite ?: false
+        } catch (_: Exception) {
+            throw FriendDatabaseException("Failed to get favorite post state")
+        }
+    }
 }
