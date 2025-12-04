@@ -99,21 +99,23 @@ class PostRepositoryImplTest {
     }
 
     @Test
-    fun `addToFavorite calls local save`() = runTest {
+    fun `saveToFavorite calls local save`() = runTest {
         val postId = "55"
-        coEvery { postLocal.saveToFavorite(postId) } returns Unit
+        val isFavorite = true
 
-        repository.addToFavorite(postId)
+        coEvery { postLocal.saveToFavorite(postId, isFavorite) } returns Unit
 
-        coVerify { postLocal.saveToFavorite(postId) }
+        repository.saveToFavorite(postId, isFavorite)
+
+        coVerify { postLocal.saveToFavorite(postId, isFavorite) }
     }
 
     @Test
-    fun `addToFavorite throws FriendDatabaseException`() = runTest {
-        coEvery { postLocal.saveToFavorite("11") } throws FriendDatabaseException("")
+    fun `saveToFavorite throws FriendDatabaseException`() = runTest {
+        coEvery { postLocal.saveToFavorite("11", true) } throws FriendDatabaseException("")
 
         assertFailsWith<FriendDatabaseException> {
-            repository.addToFavorite("11")
+            repository.saveToFavorite("11", true)
         }
     }
 }

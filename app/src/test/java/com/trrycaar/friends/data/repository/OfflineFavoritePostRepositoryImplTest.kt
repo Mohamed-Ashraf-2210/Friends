@@ -26,44 +26,46 @@ class OfflineFavoritePostRepositoryImplTest {
     }
 
     @Test
-    fun `addPostToOfflineFavorite saves entity successfully`() = runTest {
+    fun `saveOfflinePostToFavorite saves entity successfully`() = runTest {
         val postId = "99"
+        val isFavorite = true
 
         coEvery { offlineLocal.saveOfflinePostToFavorite(any()) } returns Unit
 
-        repository.addPostToOfflineFavorite(postId)
+        repository.savePostToOfflineFavorite(postId, isFavorite)
 
         coVerify(exactly = 1) {
             offlineLocal.saveOfflinePostToFavorite(
-                OfflineFavoritePostEntity(postId)
+                OfflineFavoritePostEntity(postId, true)
             )
         }
     }
 
     @Test
-    fun `addPostToOfflineFavorite throws FriendDatabaseException`() = runTest {
+    fun `saveOfflinePostToFavorite throws FriendDatabaseException`() = runTest {
         val postId = "123"
+        val isFavorite = true
 
         coEvery { offlineLocal.saveOfflinePostToFavorite(any()) } throws FriendDatabaseException("")
 
         assertFailsWith<FriendDatabaseException> {
-            repository.addPostToOfflineFavorite(postId)
+            repository.savePostToOfflineFavorite(postId, isFavorite)
         }
     }
 
     @Test
     fun `syncOfflineFavorites uploads posts and deletes them`() = runTest {
         val offlineList = listOf(
-            OfflineFavoritePostEntity("1"),
-            OfflineFavoritePostEntity("2")
+            OfflineFavoritePostEntity("1", true),
+            OfflineFavoritePostEntity("2", true)
         )
 
         coEvery { offlineLocal.getAll() } returns offlineList
 
         repository.syncOfflineFavorites()
 
-        coVerify { postLocal.saveToFavorite("1") }
-        coVerify { postLocal.saveToFavorite("2") }
+        coVerify { postLocal.saveToFavorite("1", true) }
+        coVerify { postLocal.saveToFavorite("2", true) }
 
         coVerify { offlineLocal.deleteById("1") }
         coVerify { offlineLocal.deleteById("2") }

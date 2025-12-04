@@ -20,8 +20,8 @@ interface PostDao {
     @Query("SELECT * FROM $POSTS_TABLE_NAME WHERE id = :id")
     suspend fun getPostById(id: String): PostEntity?
 
-    @Query("UPDATE $POSTS_TABLE_NAME SET isFavorite = 1 WHERE id = :id")
-    suspend fun saveToFavorite(id: String)
+    @Query("UPDATE $POSTS_TABLE_NAME SET isFavorite = :isFavorite WHERE id = :id")
+    suspend fun saveToFavorite(id: String, isFavorite: Boolean)
 
     @Query("DELETE FROM $POSTS_TABLE_NAME")
     suspend fun clearAllPosts()

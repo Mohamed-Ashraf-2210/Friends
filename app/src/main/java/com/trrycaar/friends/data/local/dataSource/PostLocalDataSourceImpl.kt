@@ -36,11 +36,11 @@ class PostLocalDataSourceImpl(
         }
     }
 
-    override suspend fun saveToFavorite(id: String) {
+    override suspend fun saveToFavorite(id: String, isFavorite: Boolean) {
         try {
-            postDao.saveToFavorite(id)
+            postDao.saveToFavorite(id, isFavorite)
         } catch (_: Exception) {
-            throw FriendDatabaseException("Failed to add post to favorite")
+            throw FriendDatabaseException("Failed to save post to favorite")
         }
     }
 

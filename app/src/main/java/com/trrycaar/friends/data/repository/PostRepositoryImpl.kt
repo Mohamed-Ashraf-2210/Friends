@@ -67,9 +67,9 @@ class PostRepositoryImpl(
         }
     }
 
-    override suspend fun addToFavorite(postId: String) {
+    override suspend fun saveToFavorite(postId: String, isFavorite: Boolean) {
         try {
-            postLocal.saveToFavorite(postId)
+            postLocal.saveToFavorite(postId, isFavorite)
         } catch (e: FriendDatabaseException) {
             throw e
         }

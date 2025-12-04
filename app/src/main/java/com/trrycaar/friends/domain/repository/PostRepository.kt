@@ -9,5 +9,5 @@ interface PostRepository {
     fun getFavoritePostsPaging(): Flow<PagingData<Post>>
 
     suspend fun getFavoritePostState(postId: String): Boolean
-    suspend fun addToFavorite(postId: String)
+    suspend fun saveToFavorite(postId: String, isFavorite: Boolean)
 }

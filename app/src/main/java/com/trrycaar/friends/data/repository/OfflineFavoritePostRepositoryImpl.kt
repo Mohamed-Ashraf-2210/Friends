@@ -10,10 +10,10 @@ class OfflineFavoritePostRepositoryImpl(
     private val offlineFavoritePostsLocal: OfflineFavoritePostsLocalDataSource,
     private val postLocal: PostLocalDataSource
 ) : OfflineFavoritePostRepository {
-    override suspend fun addPostToOfflineFavorite(postId: String) {
+    override suspend fun savePostToOfflineFavorite(postId: String, isFavorite: Boolean) {
         try {
             offlineFavoritePostsLocal.saveOfflinePostToFavorite(
-                OfflineFavoritePostEntity(postId)
+                OfflineFavoritePostEntity(postId = postId, isFavorite = isFavorite)
             )
         } catch (e: FriendDatabaseException) {
             throw e
@@ -25,7 +25,7 @@ class OfflineFavoritePostRepositoryImpl(
         try {
             val offlineFavorites = offlineFavoritePostsLocal.getAll()
             offlineFavorites.forEach { offlineFavorite ->
-                postLocal.saveToFavorite(offlineFavorite.postId)
+                postLocal.saveToFavorite(offlineFavorite.postId, offlineFavorite.isFavorite)
                 offlineFavoritePostsLocal.deleteById(offlineFavorite.postId)
             }
         } catch (e: FriendDatabaseException) {

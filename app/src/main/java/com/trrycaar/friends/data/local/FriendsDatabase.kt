@@ -9,8 +9,7 @@ import com.trrycaar.friends.data.local.entity.PostEntity
 
 @Database(
     entities = [PostEntity::class, OfflineFavoritePostEntity::class],
-    version = 1,
-    exportSchema = false
+    version = 1
 )
 abstract class FriendsDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao

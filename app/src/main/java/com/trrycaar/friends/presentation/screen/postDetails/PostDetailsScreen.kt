@@ -99,7 +99,7 @@ private fun PostDetailsContent(
                         interactionSource = null,
                         indication = null
                     ) {
-                        viewModel.addPostToFavorites()
+                        viewModel.onFavoritesClicked()
                     },
                 tint = favoriteIconColor,
                 contentDescription = null
