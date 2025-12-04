@@ -1,15 +1,14 @@
 package com.trrycaar.friends.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.trrycaar.friends.data.local.entity.PostEntity
 import com.trrycaar.friends.data.util.constants.Constants.POSTS_TABLE_NAME
 
 @Dao
 interface PostDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPosts(posts: List<PostEntity>)
 
     @Query("SELECT * FROM $POSTS_TABLE_NAME LIMIT :pageSize OFFSET (:page - 1) * :pageSize")
@@ -23,4 +22,7 @@ interface PostDao {
 
     @Query("UPDATE $POSTS_TABLE_NAME SET isFavorite = 1 WHERE id = :id")
     suspend fun saveToFavorite(id: String)
+
+    @Query("DELETE FROM $POSTS_TABLE_NAME")
+    suspend fun clearAllPosts()
 }

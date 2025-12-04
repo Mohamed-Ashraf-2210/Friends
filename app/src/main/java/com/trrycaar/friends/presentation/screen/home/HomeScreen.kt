@@ -52,36 +52,33 @@ private fun HomeContent(
     viewModel: HomeViewModel,
     postsPaging: LazyPagingItems<HomeUiState.PostUiState>
 ) {
+
     val isRefreshing = postsPaging.loadState.refresh is LoadState.Loading
     val isError = postsPaging.loadState.refresh is LoadState.Error
     AnimatedContent(isRefreshing || isError) {
-        when (it) {
-            true -> {
-                if (isRefreshing) {
-                    LoadingBar(
-                        modifier = Modifier.fillMaxSize()
-                    )
+        if (it) {
+            LoadingBar(modifier = Modifier.fillMaxSize())
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(
+                    count = postsPaging.itemCount,
+                    key = { index ->
+                        postsPaging[index]?.id ?: index
+                    }) { index ->
+                    postsPaging[index]?.let { post ->
+                        PostItem(
+                            id = post.id,
+                            title = post.title,
+                            body = post.body,
+                            onClick = viewModel::onPostClicked
+                        )
+                    }
                 }
-            }
-
-            false -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp)
-                ) {
-                    items(postsPaging.itemCount) { index ->
-                        postsPaging[index]?.let { post ->
-                            PostItem(
-                                id = post.id,
-                                title = post.title,
-                                body = post.body,
-                                onClick = viewModel::onPostClicked
-                            )
-                        }
-                    }
-                    if (postsPaging.loadState.append is LoadState.Loading) {
-                        item { LoadingBar(modifier = Modifier.fillMaxSize()) }
-                    }
+                if (postsPaging.loadState.append is LoadState.Loading) {
+                    item { LoadingBar(modifier = Modifier.fillMaxSize()) }
                 }
             }
         }

@@ -1,8 +1,9 @@
 package com.trrycaar.friends.presentation.screen.home.viewModle
 
-import android.annotation.SuppressLint
+import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingData
-import androidx.paging.map
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
 import app.cash.turbine.test
 import com.trrycaar.friends.core.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Post
@@ -18,6 +19,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.yield
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -53,9 +55,7 @@ class HomeViewModelTest {
     ) = Post(id, title, body, isFavorite)
 
     private fun createViewModelWithPosts(posts: List<Post> = listOf(dummyPost())) {
-        coEvery { postRepository.getPostsPaging() } returns flowOf(
-            PagingData.from(posts)
-        )
+        coEvery { postRepository.getPostsPaging() } returns flowOf(PagingData.from(posts))
         homeViewModel = HomeViewModel(postRepository, networkMonitor, testDispatcher)
     }
 
@@ -111,13 +111,26 @@ class HomeViewModelTest {
 
     @Test
     fun `postsPaging SHOULD emit empty PagingData initially`() = runTest {
-        coEvery { postRepository.getPostsPaging() } returns flowOf(PagingData.empty())
-        homeViewModel = HomeViewModel(postRepository, networkMonitor, testDispatcher)
-
+        createViewModelWithPosts(emptyList())
         homeViewModel.postsPaging.test {
             val pagingData = awaitItem()
-            assertEquals(0, pagingData.collectDataForTest().size)
+            assertEquals(0, pagingData.collectForTest().size)
             cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `postsPaging SHOULD return success`() = runTest {
+        createViewModelWithPosts()
+        advanceUntilIdle()
+        homeViewModel.postsPaging.test {
+            skipItems(1)
+            val pagingData = awaitItem()
+
+            val items = pagingData.collectForTest()
+
+            assertEquals(1, items.size)
         }
     }
 
@@ -138,10 +151,30 @@ class HomeViewModelTest {
         assertEquals("Test Body", uiState.body)
     }
 
-    @SuppressLint("CheckResult")
-    private fun PagingData<HomeUiState.PostUiState>.collectDataForTest(): List<HomeUiState.PostUiState> {
-        var collectedItems = listOf<HomeUiState.PostUiState>()
-        this.map { collectedItems = collectedItems + it }
-        return collectedItems
+
+    suspend fun <T : Any> PagingData<T>.collectForTest(): List<T> {
+        val differ = AsyncPagingDataDiffer(
+            diffCallback = object : DiffUtil.ItemCallback<T>() {
+                override fun areItemsTheSame(oldItem: T, newItem: T): Boolean =
+                    oldItem == newItem
+
+                override fun areContentsTheSame(oldItem: T, newItem: T): Boolean =
+                    oldItem == newItem
+            },
+            updateCallback = NoopListCallback,
+            mainDispatcher = Dispatchers.Main,
+            workerDispatcher = Dispatchers.Main
+        )
+
+        differ.submitData(this)
+        yield()
+        return differ.snapshot().items
+    }
+
+    private object NoopListCallback : ListUpdateCallback {
+        override fun onInserted(position: Int, count: Int) = Unit
+        override fun onRemoved(position: Int, count: Int) = Unit
+        override fun onMoved(fromPosition: Int, toPosition: Int) = Unit
+        override fun onChanged(position: Int, count: Int, payload: Any?) = Unit
     }
 }
