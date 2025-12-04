@@ -2,9 +2,12 @@ package com.trrycaar.friends.presentation.screen.home
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,30 +58,42 @@ private fun HomeContent(
 
     val isRefreshing = postsPaging.loadState.refresh is LoadState.Loading
     val isError = postsPaging.loadState.refresh is LoadState.Error
+    val pullRefreshState = rememberPullToRefreshState()
+
     AnimatedContent(isRefreshing || isError) {
         if (it) {
             LoadingBar(modifier = Modifier.fillMaxSize())
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                state = pullRefreshState,
+                onRefresh = { postsPaging.refresh() },
             ) {
-                items(
-                    count = postsPaging.itemCount,
-                    key = { index ->
-                        postsPaging[index]?.id ?: index
-                    }) { index ->
-                    postsPaging[index]?.let { post ->
-                        PostItem(
-                            id = post.id,
-                            title = post.title,
-                            body = post.body,
-                            onClick = viewModel::onPostClicked
-                        )
+                Box(
+                    Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        items(
+                            count = postsPaging.itemCount,
+                            key = { index ->
+                                postsPaging[index]?.id ?: index
+                            }) { index ->
+                            postsPaging[index]?.let { post ->
+                                PostItem(
+                                    id = post.id,
+                                    title = post.title,
+                                    body = post.body,
+                                    onClick = viewModel::onPostClicked
+                                )
+                            }
+                        }
+                        if (postsPaging.loadState.append is LoadState.Loading) {
+                            item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                        }
                     }
-                }
-                if (postsPaging.loadState.append is LoadState.Loading) {
-                    item { LoadingBar(modifier = Modifier.fillMaxSize()) }
                 }
             }
         }

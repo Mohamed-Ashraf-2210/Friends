@@ -27,10 +27,10 @@ class HomeViewModel(
 
     val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> =
         postRepository.getPostsPaging()
-            .cachedIn(viewModelScope)
             .map { pagingData ->
                 pagingData.map { it.toUiState() }
             }
+            .cachedIn(viewModelScope)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Lazily,
