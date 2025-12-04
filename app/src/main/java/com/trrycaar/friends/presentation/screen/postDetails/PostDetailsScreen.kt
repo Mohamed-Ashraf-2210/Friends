@@ -2,8 +2,10 @@ package com.trrycaar.friends.presentation.screen.postDetails
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,9 +16,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -38,6 +45,7 @@ fun PostDetailsScreen(
     navController: NavHostController,
     viewModel: PostDetailsViewModel = koinViewModel()
 ) {
+    val state by viewModel.state.collectAsState()
     val commentsPaging = viewModel.commentsPaging.collectAsLazyPagingItems()
     val context = LocalContext.current
     ObserveAsEffect(viewModel.effect) {
@@ -51,16 +59,26 @@ fun PostDetailsScreen(
             }
         }
     }
-    PostDetailsContent(viewModel = viewModel, commentsPaging = commentsPaging)
+    PostDetailsContent(state = state, viewModel = viewModel, commentsPaging = commentsPaging)
 }
 
 @Composable
 private fun PostDetailsContent(
+    state: PostDetailsUiState,
     viewModel: PostDetailsViewModel,
     commentsPaging: LazyPagingItems<PostDetailsUiState.CommentUiState>
 ) {
     val isRefreshing = commentsPaging.loadState.refresh is LoadState.Loading
     val isError = commentsPaging.loadState.refresh is LoadState.Error
+    val pullRefreshState = rememberPullToRefreshState()
+
+    val favoriteIconColor by animateColorAsState(
+        targetValue = if (state.isFavorite) {
+            Color.Red
+        } else {
+            MaterialTheme.colorScheme.onBackground
+        }
+    )
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -75,7 +93,7 @@ private fun PostDetailsContent(
                 color = MaterialTheme.colorScheme.onBackground
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_favorite),
+                painter = painterResource(id = R.drawable.ic_favorite_filled),
                 modifier = Modifier
                     .clickable(
                         interactionSource = null,
@@ -83,34 +101,39 @@ private fun PostDetailsContent(
                     ) {
                         viewModel.addPostToFavorites()
                     },
+                tint = favoriteIconColor,
                 contentDescription = null
             )
         }
         AnimatedContent(isRefreshing || isError) {
-            when (it) {
-                true -> {
-                    if (isRefreshing) {
-                        LoadingBar(
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
-
-                false -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp)
+            if (it) {
+                LoadingBar(
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    state = pullRefreshState,
+                    onRefresh = { commentsPaging.refresh() },
+                ) {
+                    Box(
+                        Modifier.fillMaxSize()
                     ) {
-                        items(commentsPaging.itemCount) { index ->
-                            commentsPaging[index]?.let { comment ->
-                                CommentItem(
-                                    name = comment.name,
-                                    body = comment.body
-                                )
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            items(commentsPaging.itemCount) { index ->
+                                commentsPaging[index]?.let { comment ->
+                                    CommentItem(
+                                        name = comment.name,
+                                        body = comment.body
+                                    )
+                                }
                             }
-                        }
-                        if (commentsPaging.loadState.append is LoadState.Loading) {
-                            item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                            if (commentsPaging.loadState.append is LoadState.Loading) {
+                                item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                            }
                         }
                     }
                 }

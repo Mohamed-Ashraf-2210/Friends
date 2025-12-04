@@ -1,7 +1,8 @@
 package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 
 data class PostDetailsUiState(
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val isFavorite: Boolean = false
 ) {
     data class CommentUiState(
         val id: String = "",

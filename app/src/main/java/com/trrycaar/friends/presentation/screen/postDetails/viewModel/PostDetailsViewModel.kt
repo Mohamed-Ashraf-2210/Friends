@@ -44,7 +44,16 @@ class PostDetailsViewModel(
                 initialValue = PagingData.empty()
             )
 
+    init {
+        loadPost()
+    }
+
     fun addPostToFavorites() {
+        if (state.value.isFavorite) {
+            emitEffect(PostDetailsEffect.ShowMessage("Post is already in favorite posts"))
+            return
+        }
+
         tryToExecute(
             block = {
                 if (networkMonitor.isConnected.value)
@@ -53,6 +62,15 @@ class PostDetailsViewModel(
                     favoritePostRepository.addPostToOfflineFavorite(postId)
             }
         )
-        emitEffect(PostDetailsEffect.ShowMessage("Post added to favorites"))
+        updateState { copy(isFavorite = true) }
+    }
+
+    fun loadPost() {
+        tryToExecute(
+            block = { postRepository.getFavoritePostState(postId) },
+            onSuccess = {
+                updateState { copy(isFavorite = it) }
+            }
+        )
     }
 }
