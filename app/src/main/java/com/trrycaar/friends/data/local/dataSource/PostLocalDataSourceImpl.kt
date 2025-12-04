@@ -1,5 +1,6 @@
 package com.trrycaar.friends.data.local.dataSource
 
+import androidx.paging.PagingSource
 import com.trrycaar.friends.data.local.dao.PostDao
 import com.trrycaar.friends.data.local.entity.PostEntity
 import com.trrycaar.friends.domain.exception.FriendDatabaseException
@@ -14,23 +15,23 @@ class PostLocalDataSourceImpl(
                     it.copy(isFavorite = existingPost.isFavorite)
                 } ?: it
             }
-            postDao.insertPosts(newPosts)
+            postDao.savePosts(newPosts)
         } catch (_: Exception) {
             throw FriendDatabaseException("Failed to save posts")
         }
     }
 
-    override suspend fun getPosts(page: Int, pageSize: Int): List<PostEntity> {
+    override fun getPosts(): PagingSource<Int, PostEntity> {
         return try {
-            postDao.getPostsPaginated(page, pageSize)
+            postDao.getPostsPaginated()
         } catch (_: Exception) {
             throw FriendDatabaseException("Failed to get posts")
         }
     }
 
-    override suspend fun getFavorites(page: Int, pageSize: Int): List<PostEntity> {
+    override fun getFavorites(): PagingSource<Int, PostEntity> {
         return try {
-            postDao.getFavoritePosts(page, pageSize)
+            postDao.getFavoritePosts()
         } catch (_: Exception) {
             throw FriendDatabaseException("Failed to get favorite posts")
         }

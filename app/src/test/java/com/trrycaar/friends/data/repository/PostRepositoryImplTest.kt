@@ -1,6 +1,9 @@
 package com.trrycaar.friends.data.repository
 
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import androidx.paging.testing.asSnapshot
+import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.local.entity.PostEntity
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
@@ -28,6 +31,7 @@ class PostRepositoryImplTest {
 
     private lateinit var postLocal: PostLocalDataSource
     private lateinit var postRemote: PostRemoteDataSource
+    private lateinit var appDatabase: FriendsDatabase
     private lateinit var repository: PostRepositoryImpl
     private val dispatcher = StandardTestDispatcher()
 
@@ -37,7 +41,8 @@ class PostRepositoryImplTest {
         Dispatchers.setMain(dispatcher)
         postLocal = mockk(relaxed = true)
         postRemote = mockk(relaxed = true)
-        repository = PostRepositoryImpl(postLocal, postRemote)
+        appDatabase = mockk(relaxed = true)
+        repository = PostRepositoryImpl(postLocal, postRemote, appDatabase)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -56,18 +61,42 @@ class PostRepositoryImplTest {
 
         coEvery { postRemote.getPosts(1, 10) } returns PostsDto(
             posts = postsDto,
-            pagination = Pagination(false, false, 10, 1, 2, 1)
+            pagination = Pagination(
+                hasNext = true,
+                hasPrev = false,
+                limit = 10,
+                total = 2,
+                totalPages = 1,
+                page = 1
+            )
         )
+
+        // page 2 empty
         coEvery { postRemote.getPosts(2, 10) } returns PostsDto(
             posts = emptyList(),
-            pagination = Pagination(false, false, 10, 1, 2, 1)
+            pagination = Pagination(
+                hasNext = false,
+                hasPrev = true,
+                limit = 10,
+                total = 2,
+                totalPages = 1,
+                page = 2
+            )
         )
 
-        coEvery { postLocal.getPosts(any(), any()) } returns emptyList()
+        // Fake local DB after saving
+        coEvery { postLocal.getPosts() } returns FakePostPagingSource(
+            data = listOf(
+                PostEntity("1", "title1", "body1"),
+                PostEntity("2", "title2", "body2")
+            )
+        )
 
-        val items = repository.getPostsPaging().asSnapshot { scrollTo(10) }
+        val items = repository.getPostsPaging().asSnapshot {
+            scrollTo(20)
+        }
 
-
+        // Assert
         assertEquals(2, items.size)
         assertEquals("title1", items[0].title)
 
@@ -77,6 +106,7 @@ class PostRepositoryImplTest {
             )
         }
     }
+
 
     @Test
     fun `getFavoritePostsPaging loads from local only`() = runTest {
@@ -117,5 +147,20 @@ class PostRepositoryImplTest {
         assertFailsWith<FriendDatabaseException> {
             repository.saveToFavorite("11", true)
         }
+    }
+}
+
+class FakePostPagingSource(
+    private val data: List<PostEntity>
+) : PagingSource<Int, PostEntity>() {
+    override fun getRefreshKey(state: PagingState<Int, PostEntity>): Int? = null
+
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PostEntity> {
+        return LoadResult.Page(
+            data = data,
+            prevKey = null,
+            nextKey = null
+        )
     }
 }

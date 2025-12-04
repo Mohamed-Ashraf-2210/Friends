@@ -1,44 +1,34 @@
 package com.trrycaar.friends.data.repository
 
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
+import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.mapper.toDomain
-import com.trrycaar.friends.data.mapper.toEntity
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
-import com.trrycaar.friends.data.util.base.BasePagingSource
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.exception.FriendDatabaseException
 import com.trrycaar.friends.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class PostRepositoryImpl(
     private val postLocal: PostLocalDataSource,
-    private val postRemote: PostRemoteDataSource
+    private val postRemote: PostRemoteDataSource,
+    private val appDatabase: FriendsDatabase
 ) : PostRepository {
+    @OptIn(ExperimentalPagingApi::class)
     override fun getPostsPaging(): Flow<PagingData<Post>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = 10,
-                enablePlaceholders = false
-            ),
+            config = PagingConfig(pageSize = 10, enablePlaceholders = false, prefetchDistance = 5),
+            remoteMediator = PostRemoteMediator(appDatabase, postLocal, postRemote),
             pagingSourceFactory = {
-                BasePagingSource(
-                    pageSize = 10,
-                    onError = { throw it },
-                    getDataFromApi = { page, pageSize ->
-                        postRemote.getPosts(page, pageSize).posts.map { it.toDomain() }
-                    },
-                    getDataFromDataBase = { page, pageSize ->
-                        postLocal.getPosts(page, pageSize).map { it.toDomain() }
-                    },
-                    saveDataToDataBase = { posts ->
-                        postLocal.savePosts(posts.map { it.toEntity() })
-                    }
-                )
+                postLocal.getPosts()
             }
-        ).flow
+        ).flow.map { it.map { post -> post.toDomain() } }
     }
 
     override fun getFavoritePostsPaging(): Flow<PagingData<Post>> {
@@ -48,15 +38,9 @@ class PostRepositoryImpl(
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                BasePagingSource(
-                    pageSize = 10,
-                    onError = { throw it },
-                    getDataFromDataBase = { page, pageSize ->
-                        postLocal.getFavorites(page, pageSize).map { it.toDomain() }
-                    }
-                )
+                postLocal.getFavorites()
             }
-        ).flow
+        ).flow.map { it.map { postEntity -> postEntity.toDomain() } }
     }
 
     override suspend fun getFavoritePostState(postId: String): Boolean {

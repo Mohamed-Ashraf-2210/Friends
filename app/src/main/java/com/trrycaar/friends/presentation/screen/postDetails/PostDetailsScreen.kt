@@ -1,11 +1,9 @@
 package com.trrycaar.friends.presentation.screen.postDetails
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -69,7 +67,6 @@ private fun PostDetailsContent(
     commentsPaging: LazyPagingItems<PostDetailsUiState.CommentUiState>
 ) {
     val isRefreshing = commentsPaging.loadState.refresh is LoadState.Loading
-    val isError = commentsPaging.loadState.refresh is LoadState.Error
     val pullRefreshState = rememberPullToRefreshState()
 
     val favoriteIconColor by animateColorAsState(
@@ -105,35 +102,33 @@ private fun PostDetailsContent(
                 contentDescription = null
             )
         }
-        AnimatedContent(isRefreshing || isError) {
-            if (it) {
-                LoadingBar(
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    state = pullRefreshState,
-                    onRefresh = { commentsPaging.refresh() },
-                ) {
-                    Box(
-                        Modifier.fillMaxSize()
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            state = pullRefreshState,
+            onRefresh = { commentsPaging.refresh() },
+        ) {
+            when {
+                isRefreshing -> {
+                    LoadingBar(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(vertical = 8.dp)
-                        ) {
-                            items(commentsPaging.itemCount) { index ->
-                                commentsPaging[index]?.let { comment ->
-                                    CommentItem(
-                                        name = comment.name,
-                                        body = comment.body
-                                    )
-                                }
+                        items(commentsPaging.itemCount) { index ->
+                            commentsPaging[index]?.let { comment ->
+                                CommentItem(
+                                    name = comment.name,
+                                    body = comment.body
+                                )
                             }
-                            if (commentsPaging.loadState.append is LoadState.Loading) {
-                                item { LoadingBar(modifier = Modifier.fillMaxSize()) }
-                            }
+                        }
+                        if (commentsPaging.loadState.append is LoadState.Loading) {
+                            item { LoadingBar(modifier = Modifier.fillMaxSize()) }
                         }
                     }
                 }

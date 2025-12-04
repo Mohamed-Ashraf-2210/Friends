@@ -35,17 +35,17 @@ val friendsModule = module {
 
     single {
         Room.databaseBuilder(androidContext(), FriendsDatabase::class.java, DATABASE_NAME)
-            .fallbackToDestructiveMigration()
             .build()
     }
     single { get<FriendsDatabase>().postDao() }
     single { get<FriendsDatabase>().offlineFavoritePostDao() }
+    single { get<FriendsDatabase>().remoteKeysDao() }
     single<PostLocalDataSource> { PostLocalDataSourceImpl(get()) }
     single<OfflineFavoritePostsLocalDataSource> { OfflineFavoritePostsLocalDataSourceImpl(get()) }
     single<PostRemoteDataSource> { PostRemoteDataSourceImpl(get()) }
     single<CommentRemoteDataSource> { CommentRemoteDataSourceImpl(get()) }
 
-    single<PostRepository> { PostRepositoryImpl(get(), get()) }
+    single<PostRepository> { PostRepositoryImpl(get(), get(), get()) }
     single<CommentRepository> { CommentRepositoryImpl(get()) }
     single<OfflineFavoritePostRepository> { OfflineFavoritePostRepositoryImpl(get(), get()) }
 
