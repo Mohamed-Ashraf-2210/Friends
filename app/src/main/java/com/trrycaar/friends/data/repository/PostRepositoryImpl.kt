@@ -59,6 +59,14 @@ class PostRepositoryImpl(
         ).flow
     }
 
+    override suspend fun getFavoritePostState(postId: String): Boolean {
+        return try {
+            postLocal.getFavoritePostState(postId)
+        } catch (e: FriendDatabaseException) {
+            throw e
+        }
+    }
+
     override suspend fun addToFavorite(postId: String) {
         try {
             postLocal.saveToFavorite(postId)
