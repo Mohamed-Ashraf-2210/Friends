@@ -6,7 +6,7 @@ import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.data.network_monitor.NetworkMonitor
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
@@ -54,7 +54,10 @@ class PostDetailsViewModel(
                 if (networkMonitor.isConnected.value)
                     postRepository.saveToFavorite(postId, !state.value.isFavorite)
                 else
-                    favoritePostRepository.savePostToOfflineFavorite(postId, !state.value.isFavorite)
+                    favoritePostRepository.savePostToOfflineFavorite(
+                        postId,
+                        !state.value.isFavorite
+                    )
             },
             onSuccess = { updateState { copy(isFavorite = !isFavorite) } }
         )

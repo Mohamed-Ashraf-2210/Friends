@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.data.network_monitor.NetworkMonitor
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher

@@ -2,7 +2,7 @@ package com.trrycaar.friends.presentation.screen.home.viewModle
 
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.data.network_monitor.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.helper.collectForTest

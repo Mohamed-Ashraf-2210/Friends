@@ -3,7 +3,7 @@ package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.data.network_monitor.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
