@@ -22,16 +22,15 @@ class FavoritePostsViewModel(
 ) {
     val favoritePostsPaging: StateFlow<PagingData<FavoritePostsUiState.PostUiState>> =
         postRepository.getFavoritePostsPaging()
-            .cachedIn(viewModelScope)
             .map { pagingData ->
                 pagingData.map { it.toUiState() }
             }
+            .cachedIn(viewModelScope)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Lazily,
                 initialValue = PagingData.empty()
             )
-
 
     fun onPostClicked(postId: String) {
         emitEffect(FavoritePostsEffects.NavigateToPostDetails(postId))

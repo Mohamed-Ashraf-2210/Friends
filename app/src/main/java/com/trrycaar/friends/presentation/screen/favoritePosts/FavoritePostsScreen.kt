@@ -2,9 +2,12 @@ package com.trrycaar.friends.presentation.screen.favoritePosts
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -56,33 +59,44 @@ fun FavoritePostsContent(
 ) {
     val isRefreshing = favoritePostsPaging.loadState.refresh is LoadState.Loading
     val isError = favoritePostsPaging.loadState.refresh is LoadState.Error
+    val pullRefreshState = rememberPullToRefreshState()
     AnimatedContent(isRefreshing || isError) {
-        when (it) {
-            true -> {
-                if (isRefreshing) {
-                    LoadingBar(
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+        if (it) {
+            if (isRefreshing) {
+                LoadingBar(
+                    modifier = Modifier.fillMaxSize()
+                )
             }
-
-            false -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+        } else {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                state = pullRefreshState,
+                onRefresh = { favoritePostsPaging.refresh() },
+            ) {
+                Box(
+                    Modifier.fillMaxSize()
                 ) {
-                    items(favoritePostsPaging.itemCount) { index ->
-                        favoritePostsPaging[index]?.let { post ->
-                            PostItem(
-                                id = post.id,
-                                title = post.title,
-                                body = post.body,
-                                onClick = viewModel::onPostClicked
-                            )
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        items(
+                            count = favoritePostsPaging.itemCount,
+                            key = { index ->
+                                favoritePostsPaging[index]?.id ?: index
+                            }) { index ->
+                            favoritePostsPaging[index]?.let { post ->
+                                PostItem(
+                                    id = post.id,
+                                    title = post.title,
+                                    body = post.body,
+                                    onClick = viewModel::onPostClicked
+                                )
+                            }
                         }
-                    }
-                    if (favoritePostsPaging.loadState.append is LoadState.Loading) {
-                        item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                        if (favoritePostsPaging.loadState.append is LoadState.Loading) {
+                            item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                        }
                     }
                 }
             }
