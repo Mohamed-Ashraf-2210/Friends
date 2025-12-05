@@ -9,8 +9,8 @@ import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
+import com.trrycaar.friends.data.util.safeCall
 import com.trrycaar.friends.domain.entity.Post
-import com.trrycaar.friends.domain.exception.FriendDatabaseException
 import com.trrycaar.friends.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -44,18 +44,14 @@ class PostRepositoryImpl(
     }
 
     override suspend fun getFavoritePostState(postId: String): Boolean {
-        return try {
+        return safeCall {
             postLocal.getFavoritePostState(postId)
-        } catch (e: FriendDatabaseException) {
-            throw e
         }
     }
 
     override suspend fun saveToFavorite(postId: String, isFavorite: Boolean) {
-        try {
+        safeCall {
             postLocal.saveToFavorite(postId, isFavorite)
-        } catch (e: FriendDatabaseException) {
-            throw e
         }
     }
 }

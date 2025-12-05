@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.remote.dataSource.CommentRemoteDataSource
-import com.trrycaar.friends.data.util.base.BasePagingSource
+import com.trrycaar.friends.data.remote.paging.ApiPagingSource
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +20,7 @@ class CommentRepositoryImpl(
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                BasePagingSource(
+                ApiPagingSource(
                     pageSize = 10,
                     getDataFromApi = { page, pageSize ->
                         commentRemote.getComments(page, pageSize).commentDto.map { it.toDomain() }

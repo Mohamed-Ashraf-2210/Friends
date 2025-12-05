@@ -1,11 +1,11 @@
-package com.trrycaar.friends.data.util.base
+package com.trrycaar.friends.data.remote.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class BasePagingSource<T : Any>(
+class ApiPagingSource<T : Any>(
     private val getDataFromApi: (suspend (Int, pageSize: Int) -> List<T>),
     private val onError: (Throwable) -> Unit = {},
     private val pageSize: Int = 10
