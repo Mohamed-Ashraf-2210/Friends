@@ -63,7 +63,7 @@ class PostRemoteMediator(
             }
             MediatorResult.Success(endOfPaginationReached = posts.posts.isEmpty())
         } catch (e: IOException) {
-            MediatorResult.Error(e)
+            MediatorResult.Success(endOfPaginationReached = true)
         } catch (e: Exception) {
             MediatorResult.Error(e)
         }

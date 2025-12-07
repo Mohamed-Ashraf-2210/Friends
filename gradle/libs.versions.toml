@@ -36,7 +36,7 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
-
+koin-androidx-work = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }
 
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
@@ -95,7 +95,8 @@ ktor-client = [
 koin = [
     "koin-android",
     "koin-core",
-    "koin-androidx-compose"
+    "koin-androidx-compose",
+    "koin-androidx-work"
 ]
 
 room = [

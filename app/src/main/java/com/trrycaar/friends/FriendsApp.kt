@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit
 class FriendsApp: Application() {
     override fun onCreate() {
         super.onCreate()
+        scheduleNetworkWork(this)
         startKoin {
             androidLogger()
             androidContext(this@FriendsApp)

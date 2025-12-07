@@ -9,7 +9,10 @@ import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class FavoritePostsViewModel(
     postRepository: PostRepository,
@@ -18,13 +21,17 @@ class FavoritePostsViewModel(
     initialState = FavoritePostsUiState(),
     defaultDispatcher = defaultDispatcher
 ) {
-    val favoritePostsPaging: Flow<PagingData<FavoritePostsUiState.PostUiState>> =
+    val favoritePostsPaging: StateFlow<PagingData<FavoritePostsUiState.PostUiState>> =
         postRepository.getFavoritePostsPaging()
             .map { pagingData ->
                 pagingData.map { it.toUiState() }
             }
             .cachedIn(viewModelScope)
-
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = PagingData.empty()
+            )
     fun onPostClicked(postId: String) {
         emitEffect(FavoritePostsEffects.NavigateToPostDetails(postId))
     }

@@ -3,7 +3,6 @@ package com.trrycaar.friends.data.util.network
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
-import com.trrycaar.friends.FriendsApp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -26,8 +25,6 @@ class NetworkMonitor(
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 _isConnected.value = true
-                (context.applicationContext as FriendsApp)
-                    .scheduleNetworkWork(context.applicationContext)
             }
 
             override fun onLost(network: Network) {

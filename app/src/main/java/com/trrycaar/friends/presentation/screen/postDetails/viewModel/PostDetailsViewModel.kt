@@ -12,8 +12,10 @@ import com.trrycaar.friends.presentation.base.BaseViewModel
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class PostDetailsViewModel(
     private val postRepository: PostRepository,
@@ -26,12 +28,17 @@ class PostDetailsViewModel(
 ) {
     private val postId = savedStateHandle.toRoute<FriendsRoute.PostDetailsScreenRoute>().postId
 
-    val commentsPaging: Flow<PagingData<PostDetailsUiState.CommentUiState>> =
+    val commentsPaging: StateFlow<PagingData<PostDetailsUiState.CommentUiState>> =
         commentRepository.getCommentsPost(postId)
             .map { pagingData ->
                 pagingData.map { it.toUiState() }
             }
             .cachedIn(viewModelScope)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = PagingData.empty()
+            )
 
     init {
         loadPost()

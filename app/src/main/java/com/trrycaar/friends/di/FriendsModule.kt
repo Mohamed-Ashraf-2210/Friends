@@ -4,7 +4,6 @@ import androidx.room.Room
 import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSourceImpl
-import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.data.remote.dataSource.CommentRemoteDataSource
 import com.trrycaar.friends.data.remote.dataSource.CommentRemoteDataSourceImpl
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
@@ -12,6 +11,7 @@ import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSourceImpl
 import com.trrycaar.friends.data.repository.CommentRepositoryImpl
 import com.trrycaar.friends.data.repository.PostRepositoryImpl
 import com.trrycaar.friends.data.util.constants.Constants.DATABASE_NAME
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.data.util.network.buildApiClient
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.PostRepository
