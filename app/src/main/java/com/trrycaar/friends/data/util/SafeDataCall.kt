@@ -11,7 +11,7 @@ import com.trrycaar.friends.data.exception.UnknownNetworkDataException
 import kotlinx.io.IOException
 import java.sql.SQLException
 
-suspend fun <T> safeDataCall(block: suspend () -> T): T {
+suspend fun <T> safeDbCall(block: suspend () -> T): T {
     return try {
         block()
     } catch (e: Exception) {

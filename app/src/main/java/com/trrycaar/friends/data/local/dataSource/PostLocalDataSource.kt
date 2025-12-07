@@ -9,5 +9,5 @@ interface PostLocalDataSource {
     fun getFavorites(): PagingSource<Int, PostEntity>
     suspend fun saveToFavorite(id: String, isFavorite: Boolean, isSync: Boolean)
     suspend fun getFavoritePostState(id: String): Boolean
-    suspend fun syncFavoritePosts()
+    suspend fun updateSyncFavoritePosts()
 }

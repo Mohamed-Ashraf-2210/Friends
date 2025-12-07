@@ -3,13 +3,13 @@ package com.trrycaar.friends.data.local.dataSource
 import androidx.paging.PagingSource
 import com.trrycaar.friends.data.local.dao.PostDao
 import com.trrycaar.friends.data.local.entity.PostEntity
-import com.trrycaar.friends.data.util.safeDataCall
+import com.trrycaar.friends.data.util.safeDbCall
 
 class PostLocalDataSourceImpl(
     private val postDao: PostDao,
 ) : PostLocalDataSource {
     override suspend fun savePosts(posts: List<PostEntity>) {
-        safeDataCall {
+        safeDbCall {
             val newPosts = posts.map {
                 postDao.getPostById(it.id)?.let { existingPost ->
                     it.copy(isFavorite = existingPost.isFavorite, isSync = existingPost.isSync)
@@ -36,20 +36,20 @@ class PostLocalDataSourceImpl(
     }
 
     override suspend fun saveToFavorite(id: String, isFavorite: Boolean, isSync: Boolean) {
-        safeDataCall {
+        safeDbCall {
             postDao.saveToFavorite(id, isFavorite, isSync = isSync)
         }
     }
 
     override suspend fun getFavoritePostState(id: String): Boolean {
-        return safeDataCall {
+        return safeDbCall {
             postDao.getPostById(id)?.isFavorite ?: false
         }
     }
 
-    override suspend fun syncFavoritePosts() {
-        safeDataCall {
-            postDao.syncFavoritePosts()
+    override suspend fun updateSyncFavoritePosts() {
+        safeDbCall {
+            postDao.updateSyncFavoritePosts()
         }
     }
 }

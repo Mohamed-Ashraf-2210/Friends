@@ -8,8 +8,8 @@ import androidx.paging.map
 import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.mapper.toDomain
-import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.data.util.safeCall
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
@@ -27,21 +27,14 @@ class PostRepositoryImpl(
         return Pager(
             config = PagingConfig(pageSize = 10, enablePlaceholders = false, prefetchDistance = 5),
             remoteMediator = PostRemoteMediator(appDatabase, postLocal, postRemote),
-            pagingSourceFactory = {
-                postLocal.getPosts()
-            }
+            pagingSourceFactory = { postLocal.getPosts() }
         ).flow.map { it.map { post -> post.toDomain() } }
     }
 
     override fun getFavoritePostsPaging(): Flow<PagingData<Post>> {
         return Pager(
-            config = PagingConfig(
-                pageSize = 10,
-                enablePlaceholders = false
-            ),
-            pagingSourceFactory = {
-                postLocal.getFavorites()
-            }
+            config = PagingConfig(pageSize = 10, enablePlaceholders = false, prefetchDistance = 5),
+            pagingSourceFactory = { postLocal.getFavorites() }
         ).flow.map { it.map { postEntity -> postEntity.toDomain() } }
     }
 

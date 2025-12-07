@@ -12,7 +12,7 @@ class NetworkWorker(
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         return try {
-            postLocal.syncFavoritePosts()
+            postLocal.updateSyncFavoritePosts()
             Result.success()
         } catch (e: Exception) {
             Result.retry()

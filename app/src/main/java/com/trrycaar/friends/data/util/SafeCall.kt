@@ -1,7 +1,5 @@
 package com.trrycaar.friends.data.util
 
-import android.database.sqlite.SQLiteDatabaseCorruptException
-import android.database.sqlite.SQLiteDiskIOException
 import com.trrycaar.friends.data.exception.CorruptDatabaseDataException
 import com.trrycaar.friends.data.exception.DiskAccessDataException
 import com.trrycaar.friends.domain.exception.AccessDeniedException
@@ -24,5 +22,6 @@ fun mapToDomainException(e: Throwable): FriendsException = when (e) {
     is UnresolvedAddressException -> NoInternetDataException(e.message.orEmpty())
     is CorruptDatabaseDataException,
     is DiskAccessDataException -> AccessDeniedException()
+
     else -> UnknownException(e.message)
 }

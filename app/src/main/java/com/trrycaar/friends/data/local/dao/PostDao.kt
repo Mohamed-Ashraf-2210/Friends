@@ -25,7 +25,7 @@ interface PostDao {
     suspend fun saveToFavorite(id: String, isFavorite: Boolean, isSync: Boolean)
 
     @Query("UPDATE $POSTS_TABLE_NAME SET isSync = 1 WHERE isFavorite = 1")
-    suspend fun syncFavoritePosts()
+    suspend fun updateSyncFavoritePosts()
 
     @Query("DELETE FROM $POSTS_TABLE_NAME")
     suspend fun clearAllPosts()

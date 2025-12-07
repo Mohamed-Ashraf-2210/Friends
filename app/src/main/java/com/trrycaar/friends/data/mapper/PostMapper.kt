@@ -8,8 +8,7 @@ import com.trrycaar.friends.domain.entity.Post
 fun PostDto.toEntity() = PostEntity(
     id = id.toString(),
     title = title,
-    body = body,
-    isFavorite = false
+    body = body
 )
 
 fun PostEntity.toDomain() = Post(
