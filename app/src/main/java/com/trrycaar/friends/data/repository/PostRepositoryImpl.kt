@@ -8,6 +8,7 @@ import androidx.paging.map
 import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.mapper.toDomain
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
 import com.trrycaar.friends.data.util.safeCall
 import com.trrycaar.friends.domain.entity.Post
@@ -18,7 +19,8 @@ import kotlinx.coroutines.flow.map
 class PostRepositoryImpl(
     private val postLocal: PostLocalDataSource,
     private val postRemote: PostRemoteDataSource,
-    private val appDatabase: FriendsDatabase
+    private val appDatabase: FriendsDatabase,
+    private val networkMonitor: NetworkMonitor
 ) : PostRepository {
     @OptIn(ExperimentalPagingApi::class)
     override fun getPostsPaging(): Flow<PagingData<Post>> {
@@ -51,7 +53,12 @@ class PostRepositoryImpl(
 
     override suspend fun saveToFavorite(postId: String, isFavorite: Boolean) {
         safeCall {
-            postLocal.saveToFavorite(postId, isFavorite)
+            val isNetworkConnection = networkMonitor.isConnected.value
+            postLocal.saveToFavorite(
+                id = postId,
+                isFavorite = isFavorite,
+                isSync = isNetworkConnection
+            )
         }
     }
 }

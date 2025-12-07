@@ -4,15 +4,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.trrycaar.friends.data.network_monitor.NetworkMonitor
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -25,17 +23,12 @@ class HomeViewModel(
 ) {
     private var flowConnected: Boolean = networkMonitor.isConnected.value
 
-    val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> =
+    val postsPaging: Flow<PagingData<HomeUiState.PostUiState>> =
         postRepository.getPostsPaging()
             .map { pagingData ->
                 pagingData.map { it.toUiState() }
             }
             .cachedIn(viewModelScope)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = PagingData.empty()
-            )
 
     init {
         checkNetworkConnection()

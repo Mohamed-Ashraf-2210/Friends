@@ -15,14 +15,17 @@ interface PostDao {
     @Query("SELECT * FROM $POSTS_TABLE_NAME")
     fun getPostsPaginated(): PagingSource<Int, PostEntity>
 
-    @Query("SELECT * FROM $POSTS_TABLE_NAME WHERE isFavorite = 1")
+    @Query("SELECT * FROM $POSTS_TABLE_NAME WHERE isFavorite = 1 AND isSync = 1")
     fun getFavoritePosts(): PagingSource<Int, PostEntity>
 
     @Query("SELECT * FROM $POSTS_TABLE_NAME WHERE id = :id")
     suspend fun getPostById(id: String): PostEntity?
 
-    @Query("UPDATE $POSTS_TABLE_NAME SET isFavorite = :isFavorite WHERE id = :id")
-    suspend fun saveToFavorite(id: String, isFavorite: Boolean)
+    @Query("UPDATE $POSTS_TABLE_NAME SET isFavorite = :isFavorite, isSync = :isSync WHERE id = :id")
+    suspend fun saveToFavorite(id: String, isFavorite: Boolean, isSync: Boolean)
+
+    @Query("UPDATE $POSTS_TABLE_NAME SET isSync = 1 WHERE isFavorite = 1")
+    suspend fun syncFavoritePosts()
 
     @Query("DELETE FROM $POSTS_TABLE_NAME")
     suspend fun clearAllPosts()

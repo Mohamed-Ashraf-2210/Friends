@@ -6,23 +6,17 @@ import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.trrycaar.friends.data.network_monitor.NetworkMonitor
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 class PostDetailsViewModel(
     private val postRepository: PostRepository,
-    private val favoritePostRepository: OfflineFavoritePostRepository,
-    private val networkMonitor: NetworkMonitor,
     commentRepository: CommentRepository,
     savedStateHandle: SavedStateHandle,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -32,17 +26,12 @@ class PostDetailsViewModel(
 ) {
     private val postId = savedStateHandle.toRoute<FriendsRoute.PostDetailsScreenRoute>().postId
 
-    val commentsPaging: StateFlow<PagingData<PostDetailsUiState.CommentUiState>> =
+    val commentsPaging: Flow<PagingData<PostDetailsUiState.CommentUiState>> =
         commentRepository.getCommentsPost(postId)
-            .cachedIn(viewModelScope)
             .map { pagingData ->
                 pagingData.map { it.toUiState() }
             }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = PagingData.empty()
-            )
+            .cachedIn(viewModelScope)
 
     init {
         loadPost()
@@ -51,13 +40,7 @@ class PostDetailsViewModel(
     fun onFavoritesClicked() {
         tryToExecute(
             block = {
-                if (networkMonitor.isConnected.value)
-                    postRepository.saveToFavorite(postId, !state.value.isFavorite)
-                else
-                    favoritePostRepository.savePostToOfflineFavorite(
-                        postId,
-                        !state.value.isFavorite
-                    )
+                postRepository.saveToFavorite(postId, !state.value.isFavorite)
             },
             onSuccess = { updateState { copy(isFavorite = !isFavorite) } }
         )

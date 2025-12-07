@@ -3,10 +3,9 @@ package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.trrycaar.friends.data.network_monitor.NetworkMonitor
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.domain.repository.OfflineFavoritePostRepository
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.helper.collectForTest
 import io.mockk.coEvery
@@ -28,7 +27,6 @@ import kotlin.test.assertEquals
 class PostDetailsViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val postRepository = mockk<PostRepository>(relaxed = true)
-    private val favoritePostRepository = mockk<OfflineFavoritePostRepository>(relaxed = true)
     private val commentRepository = mockk<CommentRepository>()
     private lateinit var networkMonitor: NetworkMonitor
 
@@ -67,8 +65,6 @@ class PostDetailsViewModelTest {
         coEvery { commentRepository.getCommentsPost(any()) } returns flowOf(PagingData.from(comments))
         viewModel = PostDetailsViewModel(
             postRepository,
-            favoritePostRepository,
-            networkMonitor,
             commentRepository,
             mockSavedStateHandle,
             testDispatcher
