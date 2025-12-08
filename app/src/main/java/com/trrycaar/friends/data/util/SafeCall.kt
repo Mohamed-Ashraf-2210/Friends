@@ -4,6 +4,7 @@ import com.trrycaar.friends.data.exception.CorruptDatabaseException
 import com.trrycaar.friends.data.exception.DiskAccessException
 import com.trrycaar.friends.data.exception.InternalProgrammingException
 import com.trrycaar.friends.data.exception.InvalidIdException
+import com.trrycaar.friends.data.exception.NoInternetDataException
 import com.trrycaar.friends.data.exception.NotFoundDataException
 import com.trrycaar.friends.data.exception.ServerErrorException
 import com.trrycaar.friends.data.exception.UnknownApiException
@@ -14,7 +15,6 @@ import com.trrycaar.friends.domain.exception.NoInternetException
 import com.trrycaar.friends.domain.exception.NotFoundException
 import com.trrycaar.friends.domain.exception.UnknownException
 import io.ktor.util.network.UnresolvedAddressException
-import java.net.UnknownHostException
 import kotlin.coroutines.cancellation.CancellationException
 
 suspend fun <T> safeCall(execute: suspend () -> T): T {
@@ -29,8 +29,7 @@ suspend fun <T> safeCall(execute: suspend () -> T): T {
 
 fun mapToDomainException(e: Throwable): FriendsException = when (e) {
     is UnresolvedAddressException,
-    is UnknownHostException,
-    is NoInternetException -> NoInternetException("No Internet", e)
+    is NoInternetDataException -> NoInternetException("No Internet", e)
 
     is InternalProgrammingException,
     is UnknownApiException -> UnknownException(e.message, e)
