@@ -2,6 +2,7 @@ package com.trrycaar.friends.data.remote.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.trrycaar.friends.data.util.mapToDomainException
 
 class ApiPagingSource<T : Any>(
     private val getDataFromApi: suspend (Int, pageSize: Int) -> List<T>,
@@ -24,7 +25,7 @@ class ApiPagingSource<T : Any>(
                 nextKey = if (data.isEmpty()) null else page + 1
             )
         } catch (e: Exception) {
-            LoadResult.Error(e)
+            LoadResult.Error(mapToDomainException(e))
         }
     }
 }

@@ -64,4 +64,8 @@ class PostDetailsViewModel(
             }
         )
     }
+
+    fun showToastErrorMessage(error: Throwable) {
+        emitEffect(PostDetailsEffect.ShowMessage(error.message.toString()))
+    }
 }

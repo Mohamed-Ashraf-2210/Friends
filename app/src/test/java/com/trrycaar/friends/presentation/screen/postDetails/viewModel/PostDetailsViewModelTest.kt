@@ -6,7 +6,7 @@ import app.cash.turbine.test
 import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.domain.repository.FavoritePostsRepository
 import com.trrycaar.friends.presentation.screen.helper.collectForTest
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -26,7 +26,7 @@ import kotlin.test.assertEquals
 
 class PostDetailsViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
-    private val postRepository = mockk<PostRepository>(relaxed = true)
+    private val favoritePostsRepository = mockk<FavoritePostsRepository>(relaxed = true)
     private val commentRepository = mockk<CommentRepository>()
     private lateinit var networkMonitor: NetworkMonitor
 
@@ -64,7 +64,7 @@ class PostDetailsViewModelTest {
     private fun createViewModelWithComments(comments: List<Comment> = listOf(dummyComment())) {
         coEvery { commentRepository.getCommentsPost(any()) } returns flowOf(PagingData.from(comments))
         viewModel = PostDetailsViewModel(
-            postRepository,
+            favoritePostsRepository,
             commentRepository,
             mockSavedStateHandle,
             testDispatcher
@@ -95,6 +95,22 @@ class PostDetailsViewModelTest {
             assertEquals(1, items.size)
             assertEquals("1", items[0].id)
             assertEquals("Test Commenter", items[0].name)
+        }
+    }
+
+    @Test
+    fun `showToastErrorMessage SHOULD emit error message`() = runTest {
+        createViewModelWithComments()
+
+        val error = Throwable("Error!!")
+
+        viewModel.effect.test {
+            viewModel.showToastErrorMessage(error)
+
+            val effect = awaitItem()
+            assertEquals("Error!!", (effect as PostDetailsEffect.ShowMessage).message)
+
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }
