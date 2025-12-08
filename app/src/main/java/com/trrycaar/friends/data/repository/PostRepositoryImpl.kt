@@ -9,8 +9,6 @@ import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.mapper.toDomain
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
-import com.trrycaar.friends.data.util.network.NetworkMonitor
-import com.trrycaar.friends.data.util.safeCall
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +18,6 @@ class PostRepositoryImpl(
     private val postLocal: PostLocalDataSource,
     private val postRemote: PostRemoteDataSource,
     private val appDatabase: FriendsDatabase,
-    private val networkMonitor: NetworkMonitor
 ) : PostRepository {
     @OptIn(ExperimentalPagingApi::class)
     override fun getPostsPaging(): Flow<PagingData<Post>> {
@@ -36,22 +33,5 @@ class PostRepositoryImpl(
             config = PagingConfig(pageSize = 10, enablePlaceholders = false, prefetchDistance = 5),
             pagingSourceFactory = { postLocal.getFavorites() }
         ).flow.map { it.map { postEntity -> postEntity.toDomain() } }
-    }
-
-    override suspend fun getFavoritePostState(postId: String): Boolean {
-        return safeCall {
-            postLocal.getFavoritePostState(postId)
-        }
-    }
-
-    override suspend fun saveToFavorite(postId: String, isFavorite: Boolean) {
-        safeCall {
-            val isNetworkConnection = networkMonitor.isConnected.value
-            postLocal.saveToFavorite(
-                id = postId,
-                isFavorite = isFavorite,
-                isSync = isNetworkConnection
-            )
-        }
     }
 }

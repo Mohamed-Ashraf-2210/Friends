@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,7 +31,6 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.trrycaar.friends.R
-import com.trrycaar.friends.presentation.composable.LoadingBar
 import com.trrycaar.friends.presentation.screen.postDetails.composable.CommentItem
 import com.trrycaar.friends.presentation.screen.postDetails.viewModel.PostDetailsEffect
 import com.trrycaar.friends.presentation.screen.postDetails.viewModel.PostDetailsUiState
@@ -66,9 +66,9 @@ private fun PostDetailsContent(
     viewModel: PostDetailsViewModel,
     commentsPaging: LazyPagingItems<PostDetailsUiState.CommentUiState>
 ) {
-    val isRefreshing = commentsPaging.loadState.refresh is LoadState.Loading
     val pullRefreshState = rememberPullToRefreshState()
-
+    val refreshState = commentsPaging.loadState.refresh
+    val appendState = commentsPaging.loadState.append
     val favoriteIconColor by animateColorAsState(
         targetValue = if (state.isFavorite) {
             Color.Red
@@ -103,15 +103,17 @@ private fun PostDetailsContent(
             )
         }
         PullToRefreshBox(
-            isRefreshing = isRefreshing,
+            isRefreshing = refreshState is LoadState.Loading,
             state = pullRefreshState,
             onRefresh = { commentsPaging.refresh() },
         ) {
             when {
-                isRefreshing -> {
-                    LoadingBar(
-                        modifier = Modifier.fillMaxSize()
-                    )
+                refreshState is LoadState.Error -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Error! ${refreshState.error.cause}"
+                        )
+                    }
                 }
 
                 else -> {
@@ -127,8 +129,14 @@ private fun PostDetailsContent(
                                 )
                             }
                         }
-                        if (commentsPaging.loadState.append is LoadState.Loading) {
-                            item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                        if (appendState is LoadState.NotLoading && refreshState is LoadState.NotLoading && commentsPaging.itemCount == 0) {
+                            item {
+                                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = "No Comments in this post Yet!"
+                                    )
+                                }
+                            }
                         }
                     }
                 }

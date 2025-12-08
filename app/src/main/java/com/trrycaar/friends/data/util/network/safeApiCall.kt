@@ -30,7 +30,6 @@ suspend inline fun <reified T> handleResponse(response: HttpResponse): T {
         else -> throw UnknownApiException()
     }
 }
-
 fun mapToFriendsDataException(e: Throwable): FriendsDataException = when (e) {
     is FriendsDataException -> e
     is IOException -> NoInternetDataException(e)

@@ -6,16 +6,11 @@ import com.trrycaar.friends.data.local.entity.PostEntity
 import com.trrycaar.friends.data.util.safeDbCall
 
 class PostLocalDataSourceImpl(
-    private val postDao: PostDao,
+    private val postDao: PostDao
 ) : PostLocalDataSource {
     override suspend fun savePosts(posts: List<PostEntity>) {
         safeDbCall {
-            val newPosts = posts.map {
-                postDao.getPostById(it.id)?.let { existingPost ->
-                    it.copy(isFavorite = existingPost.isFavorite, isSync = existingPost.isSync)
-                } ?: it
-            }
-            postDao.savePosts(newPosts)
+            postDao.savePosts(posts)
         }
     }
 
@@ -32,24 +27,6 @@ class PostLocalDataSourceImpl(
             postDao.getFavoritePosts()
         } catch (e: Exception) {
             throw e
-        }
-    }
-
-    override suspend fun saveToFavorite(id: String, isFavorite: Boolean, isSync: Boolean) {
-        safeDbCall {
-            postDao.saveToFavorite(id, isFavorite, isSync = isSync)
-        }
-    }
-
-    override suspend fun getFavoritePostState(id: String): Boolean {
-        return safeDbCall {
-            postDao.getPostById(id)?.isFavorite ?: false
-        }
-    }
-
-    override suspend fun updateSyncFavoritePosts() {
-        safeDbCall {
-            postDao.updateSyncFavoritePosts()
         }
     }
 }

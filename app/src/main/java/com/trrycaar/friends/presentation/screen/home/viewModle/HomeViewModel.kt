@@ -9,7 +9,6 @@ import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -24,7 +23,7 @@ class HomeViewModel(
     initialState = HomeUiState(),
     defaultDispatcher = defaultDispatcher
 ) {
-     var flowConnected: Boolean = networkMonitor.isConnected.value
+    var flowConnected: Boolean = networkMonitor.isConnected.value
 
     val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> =
         postRepository.getPostsPaging()
@@ -44,8 +43,8 @@ class HomeViewModel(
 
     private fun checkNetworkConnection() {
         viewModelScope.launch {
-            networkMonitor.isConnected.collect {
-                if (flowConnected != it) {
+            networkMonitor.isConnected
+                .collect {
                     flowConnected = it
                     if (it) {
                         emitEffect(HomeEffects.ShowMessage("Online connection"))
@@ -53,8 +52,11 @@ class HomeViewModel(
                         emitEffect(HomeEffects.ShowMessage("Offline connection"))
                     }
                 }
-            }
         }
+    }
+
+    fun showToast(m: String) {
+        emitEffect(HomeEffects.ShowMessage(m))
     }
 
     fun onPostClicked(postId: String) {

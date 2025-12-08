@@ -14,6 +14,7 @@ import com.trrycaar.friends.domain.exception.NoInternetException
 import com.trrycaar.friends.domain.exception.NotFoundException
 import com.trrycaar.friends.domain.exception.UnknownException
 import io.ktor.util.network.UnresolvedAddressException
+import java.net.UnknownHostException
 import kotlin.coroutines.cancellation.CancellationException
 
 suspend fun <T> safeCall(execute: suspend () -> T): T {
@@ -28,7 +29,8 @@ suspend fun <T> safeCall(execute: suspend () -> T): T {
 
 fun mapToDomainException(e: Throwable): FriendsException = when (e) {
     is UnresolvedAddressException,
-    is NoInternetException -> NoInternetException(e.message, e)
+    is UnknownHostException,
+    is NoInternetException -> NoInternetException("No Internet", e)
 
     is InternalProgrammingException,
     is UnknownApiException -> UnknownException(e.message, e)

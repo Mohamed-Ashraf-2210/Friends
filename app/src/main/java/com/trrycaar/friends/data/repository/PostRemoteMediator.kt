@@ -1,18 +1,22 @@
 package com.trrycaar.friends.data.repository
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresExtension
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import com.trrycaar.friends.data.exception.FriendsDataException
 import com.trrycaar.friends.data.local.FriendsDatabase
 import com.trrycaar.friends.data.local.dataSource.PostLocalDataSource
 import com.trrycaar.friends.data.local.entity.PostEntity
 import com.trrycaar.friends.data.local.entity.RemoteKeysEntity
 import com.trrycaar.friends.data.mapper.toEntity
 import com.trrycaar.friends.data.remote.dataSource.PostRemoteDataSource
+import com.trrycaar.friends.data.util.mapToDomainException
+import com.trrycaar.friends.domain.exception.NoInternetException
 import kotlinx.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -52,8 +56,10 @@ class PostRemoteMediator(
             appDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     appDatabase.remoteKeysDao().clearRemoteKeys()
+                    appDatabase.postDao().clearPosts()
                 }
                 val nextKey = loadKey + 1
+
                 val keys = posts.posts.map {
                     RemoteKeysEntity(postId = it.id.toString(), nextKey = nextKey)
                 }
@@ -62,10 +68,21 @@ class PostRemoteMediator(
                 postLocal.savePosts(postEntities)
             }
             MediatorResult.Success(endOfPaginationReached = posts.posts.isEmpty())
-        } catch (e: IOException) {
-            MediatorResult.Success(endOfPaginationReached = true)
-        } catch (e: Exception) {
-            MediatorResult.Error(e)
+        } catch (e: Throwable) {
+            when(e) {
+                is IOException -> {
+                    MediatorResult.Error(NoInternetException())
+                }
+                is FriendsDataException -> {
+                    MediatorResult.Error(e)
+                }
+
+                else -> {
+                    MediatorResult.Error(
+                        runCatching { mapToDomainException(e) }.getOrElse { e }
+                    )
+                }
+            }
         }
     }
 }

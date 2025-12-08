@@ -57,7 +57,6 @@ private fun HomeContent(
     viewModel: HomeViewModel,
     postsPaging: LazyPagingItems<HomeUiState.PostUiState>
 ) {
-
     val refreshState = postsPaging.loadState.refresh
     val appendState = postsPaging.loadState.append
     val pullRefreshState = rememberPullToRefreshState()
@@ -68,10 +67,6 @@ private fun HomeContent(
         onRefresh = { postsPaging.refresh() },
     ) {
         when {
-            refreshState is LoadState.Loading -> {
-                LoadingBar(Modifier.fillMaxSize())
-            }
-
             refreshState is LoadState.Error && viewModel.flowConnected -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(

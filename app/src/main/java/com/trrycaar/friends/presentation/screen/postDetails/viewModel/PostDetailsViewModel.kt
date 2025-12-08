@@ -7,7 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.trrycaar.friends.domain.repository.CommentRepository
-import com.trrycaar.friends.domain.repository.PostRepository
+import com.trrycaar.friends.domain.repository.FavoritePostsRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import com.trrycaar.friends.presentation.navigation.FriendsRoute
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class PostDetailsViewModel(
-    private val postRepository: PostRepository,
+    private val favoritePostsRepository: FavoritePostsRepository,
     commentRepository: CommentRepository,
     savedStateHandle: SavedStateHandle,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -47,7 +47,10 @@ class PostDetailsViewModel(
     fun onFavoritesClicked() {
         tryToExecute(
             block = {
-                postRepository.saveToFavorite(postId, !state.value.isFavorite)
+                if (state.value.isFavorite)
+                    favoritePostsRepository.removeFavorite(postId)
+                else
+                    favoritePostsRepository.addFavorite(postId)
             },
             onSuccess = { updateState { copy(isFavorite = !isFavorite) } }
         )
@@ -55,7 +58,7 @@ class PostDetailsViewModel(
 
     fun loadPost() {
         tryToExecute(
-            block = { postRepository.getFavoritePostState(postId) },
+            block = { favoritePostsRepository.getFavoritePostState(postId) },
             onSuccess = {
                 updateState { copy(isFavorite = it) }
             }
