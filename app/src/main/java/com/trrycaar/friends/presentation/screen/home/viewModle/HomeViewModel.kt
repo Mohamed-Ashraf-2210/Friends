@@ -55,12 +55,11 @@ class HomeViewModel(
         }
     }
 
-    fun showToast(m: String) {
-        emitEffect(HomeEffects.ShowMessage(m))
+    fun showToastErrorMessage(error: Throwable) {
+        emitEffect(HomeEffects.ShowMessage(error.message.toString()))
     }
 
     fun onPostClicked(postId: String) {
         emitEffect(HomeEffects.NavigateToPostDetails(postId))
     }
-
 }
