@@ -14,11 +14,15 @@ class NetworkWorker(
     private val favoritePostsLocal: FavoritePostsLocalDataSource by inject()
     override suspend fun doWork(): Result {
         return try {
-            favoritePostsLocal.updateSyncFavoritePosts()
-            favoritePostsLocal.deletePendingRemovedFavorites()
+            syncFavoritePosts()
             Result.success()
         } catch (e: Exception) {
             Result.retry()
         }
+    }
+
+    private suspend fun syncFavoritePosts() {
+        favoritePostsLocal.updateSyncFavoritePosts()
+        favoritePostsLocal.deletePendingRemovedFavorites()
     }
 }
