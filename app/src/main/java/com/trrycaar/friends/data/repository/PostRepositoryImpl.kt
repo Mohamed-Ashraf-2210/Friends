@@ -31,7 +31,7 @@ class PostRepositoryImpl(
     override fun getFavoritePostsPaging(): Flow<PagingData<Post>> {
         return Pager(
             config = PagingConfig(pageSize = 10, enablePlaceholders = false, prefetchDistance = 5),
-            pagingSourceFactory = { postLocal.getFavorites() }
+            pagingSourceFactory = { postLocal.getFavoritePosts() }
         ).flow.map { it.map { postEntity -> postEntity.toDomain() } }
     }
 }

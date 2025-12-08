@@ -15,5 +15,5 @@ fun PostEntity.toDomain() = Post(
     id = id,
     title = title,
     body = body,
-    isFavorite = isFavorite
+    isFavorite = false
 )

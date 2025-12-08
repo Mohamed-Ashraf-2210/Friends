@@ -22,7 +22,7 @@ class PostLocalDataSourceImpl(
         }
     }
 
-    override fun getFavorites(): PagingSource<Int, PostEntity> {
+    override fun getFavoritePosts(): PagingSource<Int, PostEntity> {
         return try {
             postDao.getFavoritePosts()
         } catch (e: Exception) {

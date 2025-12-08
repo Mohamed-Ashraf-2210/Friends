@@ -6,5 +6,5 @@ import com.trrycaar.friends.data.local.entity.PostEntity
 interface PostLocalDataSource {
     suspend fun savePosts(posts: List<PostEntity>)
     fun getPosts(): PagingSource<Int, PostEntity>
-    fun getFavorites(): PagingSource<Int, PostEntity>
+    fun getFavoritePosts(): PagingSource<Int, PostEntity>
 }
