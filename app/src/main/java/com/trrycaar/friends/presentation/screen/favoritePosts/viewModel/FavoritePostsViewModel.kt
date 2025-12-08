@@ -8,6 +8,7 @@ import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -31,7 +32,6 @@ class FavoritePostsViewModel(
                 started = SharingStarted.Lazily,
                 initialValue = PagingData.empty()
             )
-
     fun onPostClicked(postId: String) {
         emitEffect(FavoritePostsEffects.NavigateToPostDetails(postId))
     }

@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,7 +23,7 @@ class HomeViewModel(
     initialState = HomeUiState(),
     defaultDispatcher = defaultDispatcher
 ) {
-    private var flowConnected: Boolean = networkMonitor.isConnected.value
+    var flowConnected: Boolean = networkMonitor.isConnected.value
 
     val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> =
         postRepository.getPostsPaging()
@@ -43,8 +43,8 @@ class HomeViewModel(
 
     private fun checkNetworkConnection() {
         viewModelScope.launch {
-            networkMonitor.isConnected.collect {
-                if (flowConnected != it) {
+            networkMonitor.isConnected
+                .collect {
                     flowConnected = it
                     if (it) {
                         emitEffect(HomeEffects.ShowMessage("Online connection"))
@@ -52,12 +52,14 @@ class HomeViewModel(
                         emitEffect(HomeEffects.ShowMessage("Offline connection"))
                     }
                 }
-            }
         }
+    }
+
+    fun showToastErrorMessage(error: Throwable) {
+        emitEffect(HomeEffects.ShowMessage(error.message.toString()))
     }
 
     fun onPostClicked(postId: String) {
         emitEffect(HomeEffects.NavigateToPostDetails(postId))
     }
-
 }

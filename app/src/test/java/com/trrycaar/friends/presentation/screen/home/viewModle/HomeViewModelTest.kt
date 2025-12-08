@@ -2,7 +2,7 @@ package com.trrycaar.friends.presentation.screen.home.viewModle
 
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.trrycaar.friends.core.network.NetworkMonitor
+import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.helper.collectForTest
@@ -60,9 +60,9 @@ class HomeViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `networkMonitor SHOULD emit Offline connection`() = runTest {
+        fakeNetworkFlow.value = false
         createViewModelWithPosts()
         homeViewModel.effect.test {
-            fakeNetworkFlow.value = false
             advanceUntilIdle()
 
             val effect = awaitItem()
@@ -74,22 +74,20 @@ class HomeViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `networkMonitor SHOULD emit Online connection`() = runTest {
-        createViewModelWithPosts()
-        Dispatchers.resetMain()
+        coEvery { postRepository.getPostsPaging() } returns flowOf(PagingData.empty())
         val offlineFakeNetworkFlow = MutableStateFlow(false)
         val offlineNetworkMonitor = mockk<NetworkMonitor> {
             coEvery { isConnected } returns offlineFakeNetworkFlow
         }
+
+        offlineFakeNetworkFlow.value = true
+
         val offlineViewModel = HomeViewModel(postRepository, offlineNetworkMonitor, testDispatcher)
-        Dispatchers.setMain(testDispatcher)
 
         offlineViewModel.effect.test {
-            offlineFakeNetworkFlow.value = true
             advanceUntilIdle()
-
             val effect = awaitItem()
             assertEquals("Online connection", (effect as HomeEffects.ShowMessage).message)
-            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -110,6 +108,7 @@ class HomeViewModelTest {
     fun `postsPaging SHOULD emit empty PagingData initially`() = runTest {
         createViewModelWithPosts(emptyList())
         homeViewModel.postsPaging.test {
+            skipItems(1)
             val pagingData = awaitItem()
             assertEquals(0, pagingData.collectForTest().size)
             cancelAndIgnoreRemainingEvents()
@@ -133,6 +132,21 @@ class HomeViewModelTest {
         }
     }
 
+    @Test
+    fun `showToastErrorMessage SHOULD emit error message`() = runTest {
+        createViewModelWithPosts()
+
+        val error = Throwable("Error!!")
+
+        homeViewModel.effect.test {
+            homeViewModel.showToastErrorMessage(error)
+
+            val effect = awaitItem()
+            assertEquals("Error!!", (effect as HomeEffects.ShowMessage).message)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 
     @Test
     fun `toUiState SHOULD convert Post to PostUiState correctly`() = runTest {

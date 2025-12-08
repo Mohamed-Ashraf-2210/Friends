@@ -7,7 +7,4 @@ import kotlinx.coroutines.flow.Flow
 interface PostRepository {
     fun getPostsPaging(): Flow<PagingData<Post>>
     fun getFavoritePostsPaging(): Flow<PagingData<Post>>
-
-    suspend fun getFavoritePostState(postId: String): Boolean
-    suspend fun saveToFavorite(postId: String, isFavorite: Boolean)
 }

@@ -1,14 +1,17 @@
 package com.trrycaar.friends.presentation.screen.favoritePosts
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -57,45 +60,66 @@ fun FavoritePostsContent(
     viewModel: FavoritePostsViewModel,
     favoritePostsPaging: LazyPagingItems<FavoritePostsUiState.PostUiState>
 ) {
-    val isRefreshing = favoritePostsPaging.loadState.refresh is LoadState.Loading
-    val isError = favoritePostsPaging.loadState.refresh is LoadState.Error
+    val refreshState = favoritePostsPaging.loadState.refresh
+    val appendState = favoritePostsPaging.loadState.append
     val pullRefreshState = rememberPullToRefreshState()
-    AnimatedContent(isRefreshing || isError) {
-        if (it) {
-            if (isRefreshing) {
-                LoadingBar(
-                    modifier = Modifier.fillMaxSize()
-                )
+    PullToRefreshBox(
+        isRefreshing = refreshState is LoadState.Loading,
+        state = pullRefreshState,
+        onRefresh = { favoritePostsPaging.refresh() },
+    ) {
+        when {
+            refreshState is LoadState.Error -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Error!"
+                    )
+                }
             }
-        } else {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                state = pullRefreshState,
-                onRefresh = { favoritePostsPaging.refresh() },
-            ) {
-                Box(
-                    Modifier.fillMaxSize()
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp)
-                    ) {
-                        items(
-                            count = favoritePostsPaging.itemCount,
-                            key = { index ->
-                                favoritePostsPaging[index]?.id ?: index
-                            }) { index ->
-                            favoritePostsPaging[index]?.let { post ->
-                                PostItem(
-                                    id = post.id,
-                                    title = post.title,
-                                    body = post.body,
-                                    onClick = viewModel::onPostClicked
+                    items(
+                        count = favoritePostsPaging.itemCount,
+                        key = { index ->
+                            favoritePostsPaging[index]?.id ?: index
+                        }) { index ->
+                        favoritePostsPaging[index]?.let { post ->
+                            PostItem(
+                                id = post.id,
+                                title = post.title,
+                                body = post.body,
+                                onClick = viewModel::onPostClicked
+                            )
+                        }
+                    }
+                    if (appendState is LoadState.Loading) {
+                        item {
+                            LoadingBar(Modifier.fillMaxWidth())
+                        }
+                    }
+
+                    if (appendState is LoadState.Error) {
+                        item {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "Error!"
                                 )
                             }
                         }
-                        if (favoritePostsPaging.loadState.append is LoadState.Loading) {
-                            item { LoadingBar(modifier = Modifier.fillMaxSize()) }
+                    }
+                    if (appendState is LoadState.NotLoading && refreshState is LoadState.NotLoading && favoritePostsPaging.itemCount == 0) {
+                        item {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "No Posts in favorite Yet!",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
                         }
                     }
                 }

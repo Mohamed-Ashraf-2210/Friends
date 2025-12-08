@@ -18,11 +18,11 @@ suspend fun <T : Any> PagingData<T>.collectForTest(): List<T> {
         },
         updateCallback = NoopListCallback,
         mainDispatcher = Dispatchers.Main,
-        workerDispatcher = Dispatchers.Main
+        workerDispatcher = Dispatchers.Default
     )
 
     differ.submitData(this)
-    yield()
+    repeat(5) { yield() }
     return differ.snapshot().items
 }
 
