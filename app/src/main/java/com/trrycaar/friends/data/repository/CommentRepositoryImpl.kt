@@ -22,7 +22,6 @@ class CommentRepositoryImpl(
             ),
             pagingSourceFactory = {
                 ApiPagingSource(
-                    pageSize = 10,
                     getDataFromApi = { page, pageSize ->
                         commentRemote.getComments(page, pageSize).commentDto.map { it.toDomain() }
                             .filter { it.postId == postId }

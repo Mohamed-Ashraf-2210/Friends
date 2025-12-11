@@ -3,7 +3,6 @@ package com.trrycaar.friends.presentation.screen.postDetails.viewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.domain.entity.Comment
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.FavoritePostsRepository
@@ -12,7 +11,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -28,7 +26,6 @@ class PostDetailsViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val favoritePostsRepository = mockk<FavoritePostsRepository>(relaxed = true)
     private val commentRepository = mockk<CommentRepository>()
-    private lateinit var networkMonitor: NetworkMonitor
 
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var viewModel: PostDetailsViewModel
@@ -42,9 +39,6 @@ class PostDetailsViewModelTest {
     @BeforeTest
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        networkMonitor = mockk {
-            coEvery { isConnected } returns MutableStateFlow(true)
-        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

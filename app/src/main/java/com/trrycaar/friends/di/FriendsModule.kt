@@ -16,6 +16,7 @@ import com.trrycaar.friends.data.repository.PostRepositoryImpl
 import com.trrycaar.friends.data.util.constants.Constants.DATABASE_NAME
 import com.trrycaar.friends.data.util.network.NetworkMonitor
 import com.trrycaar.friends.data.util.network.buildApiClient
+import com.trrycaar.friends.domain.NetworkObserver
 import com.trrycaar.friends.domain.repository.CommentRepository
 import com.trrycaar.friends.domain.repository.FavoritePostsRepository
 import com.trrycaar.friends.domain.repository.PostRepository
@@ -28,7 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import org.koin.dsl.onClose
 
 val friendsModule = module {
     single<HttpClient> { buildApiClient() }
@@ -49,7 +49,7 @@ val friendsModule = module {
     single<FavoritePostsRepository> { FavoritePostsRepositoryImpl(get(), get()) }
     single<CommentRepository> { CommentRepositoryImpl(get()) }
 
-    single { NetworkMonitor(androidContext()) } onClose { it?.unregister() }
+    single<NetworkObserver> { NetworkMonitor(androidContext()) }
 
     single<CoroutineDispatcher> { Dispatchers.IO }
     viewModelOf(::HomeViewModel)

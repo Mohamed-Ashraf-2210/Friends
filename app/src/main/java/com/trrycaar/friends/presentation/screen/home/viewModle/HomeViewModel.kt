@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.trrycaar.friends.data.util.network.NetworkMonitor
+import com.trrycaar.friends.domain.NetworkObserver
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.base.BaseViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -17,13 +17,13 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     postRepository: PostRepository,
-    private val networkMonitor: NetworkMonitor,
+    private val networkObserver: NetworkObserver,
     defaultDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : BaseViewModel<HomeUiState, HomeEffects>(
     initialState = HomeUiState(),
     defaultDispatcher = defaultDispatcher
 ) {
-    var flowConnected: Boolean = networkMonitor.isConnected.value
+    var flowConnected: Boolean = networkObserver.isConnected.value
 
     val postsPaging: StateFlow<PagingData<HomeUiState.PostUiState>> =
         postRepository.getPostsPaging()
@@ -43,7 +43,7 @@ class HomeViewModel(
 
     private fun checkNetworkConnection() {
         viewModelScope.launch {
-            networkMonitor.isConnected
+            networkObserver.isConnected
                 .collect {
                     flowConnected = it
                     if (it) {

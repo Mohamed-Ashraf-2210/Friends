@@ -2,7 +2,7 @@ package com.trrycaar.friends.presentation.screen.home.viewModle
 
 import androidx.paging.PagingData
 import app.cash.turbine.test
-import com.trrycaar.friends.data.util.network.NetworkMonitor
+import com.trrycaar.friends.domain.NetworkObserver
 import com.trrycaar.friends.domain.entity.Post
 import com.trrycaar.friends.domain.repository.PostRepository
 import com.trrycaar.friends.presentation.screen.helper.collectForTest
@@ -27,7 +27,7 @@ class HomeViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val postRepository = mockk<PostRepository>()
     private val fakeNetworkFlow = MutableStateFlow(true)
-    private val networkMonitor = mockk<NetworkMonitor> {
+    private val networkObserver = mockk<NetworkObserver> {
         coEvery { isConnected } returns fakeNetworkFlow
     }
     private lateinit var homeViewModel: HomeViewModel
@@ -53,7 +53,7 @@ class HomeViewModelTest {
 
     private fun createViewModelWithPosts(posts: List<Post> = listOf(dummyPost())) {
         coEvery { postRepository.getPostsPaging() } returns flowOf(PagingData.from(posts))
-        homeViewModel = HomeViewModel(postRepository, networkMonitor, testDispatcher)
+        homeViewModel = HomeViewModel(postRepository, networkObserver, testDispatcher)
     }
 
 
@@ -73,16 +73,16 @@ class HomeViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `networkMonitor SHOULD emit Online connection`() = runTest {
+    fun `networkObserver SHOULD emit Online connection`() = runTest {
         coEvery { postRepository.getPostsPaging() } returns flowOf(PagingData.empty())
         val offlineFakeNetworkFlow = MutableStateFlow(false)
-        val offlineNetworkMonitor = mockk<NetworkMonitor> {
+        val offlineNetworkObserver = mockk<NetworkObserver> {
             coEvery { isConnected } returns offlineFakeNetworkFlow
         }
 
         offlineFakeNetworkFlow.value = true
 
-        val offlineViewModel = HomeViewModel(postRepository, offlineNetworkMonitor, testDispatcher)
+        val offlineViewModel = HomeViewModel(postRepository, offlineNetworkObserver, testDispatcher)
 
         offlineViewModel.effect.test {
             advanceUntilIdle()

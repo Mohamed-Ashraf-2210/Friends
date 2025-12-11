@@ -3,18 +3,19 @@ package com.trrycaar.friends.data.util.network
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import com.trrycaar.friends.domain.NetworkObserver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class NetworkMonitor(
     context: Context
-) {
+) : NetworkObserver {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val networkCallback: ConnectivityManager.NetworkCallback
 
     private var _isConnected = MutableStateFlow(false)
-    val isConnected: StateFlow<Boolean> = _isConnected
+    override val isConnected: StateFlow<Boolean> = _isConnected
 
     init {
         val network = connectivityManager.activeNetwork
@@ -33,9 +34,5 @@ class NetworkMonitor(
             }
         }
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
-    }
-
-    fun unregister() {
-        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 }
