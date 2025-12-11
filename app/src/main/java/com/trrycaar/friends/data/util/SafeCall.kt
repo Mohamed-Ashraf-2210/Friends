@@ -1,7 +1,6 @@
 package com.trrycaar.friends.data.util
 
 import com.trrycaar.friends.data.exception.CorruptDatabaseException
-import com.trrycaar.friends.data.exception.DiskAccessException
 import com.trrycaar.friends.data.exception.InternalProgrammingException
 import com.trrycaar.friends.data.exception.InvalidIdException
 import com.trrycaar.friends.data.exception.NoInternetDataException
@@ -36,7 +35,6 @@ fun mapToDomainException(e: Throwable): FriendsException = when (e) {
 
     is NotFoundDataException -> NotFoundException(e.message, e)
     is CorruptDatabaseException,
-    is DiskAccessException,
     is UnknownDatabaseException -> FriendDatabaseException()
 
     is InvalidIdException ->
